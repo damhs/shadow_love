@@ -1,9 +1,24 @@
+// App.tsx
 import React from 'react';
-// LoginScreen 파일 경로는 실제 폴더 구조에 맞게 수정
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
 import LoginScreen from './src/screens/LoginScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
+
+const Stack = createStackNavigator();
 
 function App() {
-  return <LoginScreen />;
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* 첫 번째 화면: LoginScreen */}
+        <Stack.Screen name="Login" component={LoginScreen} />
+        {/* 두 번째 화면: SignUpScreen */}
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
 
 export default App;
