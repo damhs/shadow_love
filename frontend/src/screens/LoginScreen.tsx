@@ -7,7 +7,7 @@ import LoginContainer from '../components/login/LoginContainer';
 import LoginImage from '../components/login/LoginImage';
 import Title from '../components/Title';
 import InputField from '../components/InputField';
-import SignUpLink from '../components/signup/SignUpLink';
+import SignUpContainer from '../components/signup/SignUpContainer';
 import AuthButton from '../components/AuthButton';
 import KakaoLoginButton from '../components/login/KakaoLoginButton';
 
@@ -22,7 +22,7 @@ const LoginScreen = () => {
 
   const handleSignUpPress = () => {
     // "SignUp" 스크린으로 이동
-    navigation.navigate('SignUp' as never); 
+    navigation.navigate('SignUp' as never);
     // ^ TS에서 라우트 이름을 문자열로 인식시키기 위해 as never 사용(또는 타입 선언 방식 조정)
   };
 
@@ -41,7 +41,7 @@ const LoginScreen = () => {
 
       {/* "회원가입" 링크 → onPress 시 회원가입 화면으로 이동 */}
       <View style={{ width: '100%', alignItems: 'flex-end' }}>
-        <SignUpLink onPress={handleSignUpPress} />
+        <SignUpContainer onPress={handleSignUpPress} />
       </View>
 
       {/* 로그인 버튼 */}
