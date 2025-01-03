@@ -1,22 +1,9 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
-import AppBar from './src/components/AppBar';
-import BottomNavigationBar from './src/components/BottomNavigationBar';
+// LoginScreen 파일 경로는 실제 폴더 구조에 맞게 수정
+import LoginScreen from './src/screens/LoginScreen';
 
-const App = () => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <AppBar title="My First App" />
-      <BottomNavigationBar />
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-});
+function App() {
+  return <LoginScreen />;
+}
 
 export default App;
