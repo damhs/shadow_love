@@ -2,8 +2,9 @@
 CREATE TABLE `User` (
     `userID` BINARY(16) NOT NULL, -- Optimized UUID storage
     `name` VARCHAR(20) NOT NULL,
-    `id` VARCHAR(20) NOT NULL UNIQUE, -- 유일한 ID
-    `password` VARCHAR(255) NOT NULL, -- 암호화된 비밀번호 저장
+    `id` VARCHAR(20) UNIQUE, -- 유일한 ID
+    'email' VARCHAR(50) NOT NULL UNIQUE, -- 유일한 이메일
+    `password` VARCHAR(255), -- 암호화된 비밀번호 저장
     PRIMARY KEY (`userID`)
 );
 

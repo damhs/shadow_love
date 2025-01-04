@@ -1,7 +1,9 @@
 const express = require('express');
 const {
+  getUserID,
   getPassword,
   createUser,
+  createKakaoUser,
 } = require('../Services/authService.js');
 const bcrypt = require('bcrypt');
 
@@ -28,5 +30,17 @@ authRouter.post('/signUp', async (req, res) => {
       res.status(500).json({ error: "Failed to create user" });
   }
 });
+
+authRouter.post('/kakaoSignUp', async (req, res) => {
+  const { name, email } = req.body;
+  try {
+      await createKakaoUser(name, email);
+      res.status(200).json({ message: "Kakao user created" });
+  } catch (error) {
+      res.status(500).json({ error: "Failed to create kakao user" });
+  }
+});
+
+
 
 module.exports = authRouter;

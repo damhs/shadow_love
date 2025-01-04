@@ -3,7 +3,11 @@ const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+
 const authRouter = require('./src/Routers/authRouter');
+const artworkRouter = require('./src/Routers/artworkRouter');
+const coupleRouter = require('./src/Routers/coupleRouter');
+const diaryRouter = require('./src/Routers/diaryRouter');
 
 dotenv.config();
 
@@ -23,10 +27,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // router
 app.use('/auth', authRouter);
+app.use('/artwork', artworkRouter);
+app.use('/couple', coupleRouter);
+app.use('/diary', diaryRouter);
 
 const server = http.createServer(app);
 server.listen(app.get("port"), app.get("host"), () =>
     console.log(
       "Server is running on : " + app.get("host") + ":" + app.get("port")
     )
- );
+);
+
+app.get('/', (req, res) => {
+    res.send('Hello World');
+});
