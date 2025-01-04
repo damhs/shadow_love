@@ -11,7 +11,7 @@ const AuthScreen = () => {
 
   const handleKakaoLoginPress = () => {
     navigation.navigate('Home'); // HomeScreen으로 이동
-    console.log('카카오 로그인 클릭');
+    console.log('Navigating to HomeScreen...');
   };
 
   return (
