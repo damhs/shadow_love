@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const HomeScreen = () => {
+const DiaryScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home Screen</Text>
-      <Text>Welcome to the Home Screen!</Text>
+      <Text style={styles.title}>Diary Screen</Text>
+      <Text>This is where you can view and write diary entries.</Text>
     </View>
   );
 };
@@ -24,4 +24,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default DiaryScreen;

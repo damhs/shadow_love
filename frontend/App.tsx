@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import 'react-native-gesture-handler';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { enableScreens } from 'react-native-screens';
+import { Image, View } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
+import axios from 'axios';
+import config from './src/config';
 
-import AuthScreen from './src/screens/AuthScreen';
 import HomeScreen from './src/screens/HomeScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
+import DiaryScreen from './src/screens/DiaryScreen';
+import RecordScreen from './src/screens/RecordScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+
+enableScreens();
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -16,46 +23,122 @@ const Stack = createStackNavigator();
 function TabNavigator() {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'account' : 'account-outline';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'cog' : 'cog-outline';
-          }
-
-          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
-        },
-      })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-      }}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
+          initialRouteName="HomeScreen"
+          screenOptions={{
+            tabBarLabelPosition: 'below-icon',
+            tabBarStyle: {
+              height: 60,
+              backgroundColor: '#ffffff',
+              // borderTopLeftRadius: 20,
+              // borderTopRightRadius: 20,
+              paddingTop: 5,
+            },
+            tabBarLabelStyle: {
+              marginBottom: 8,
+              fontSize: 12,
+            },
+            tabBarActiveTintColor: '#6667AB',
+            tabBarInactiveTintColor: '#8E8E93',
+            headerShown: false,
+          }}
+        >
+          <Tab.Screen 
+            name="DiaryScreen"
+            component={DiaryScreen}
+            options={{
+              title: '일기',
+              tabBarIcon: ({ focused }) => (
+                <Image 
+                  source={require('./src/assets/img/diary.png')}
+                  style={{
+                    width: 24, 
+                    height: 24,
+                    tintColor: focused ? '#6667AB' : '#8E8E93'
+                  }} 
+                />
+              ),
+            }} 
+          />
+          <Tab.Screen 
+            name="HomeScreen" 
+            component={HomeScreen}
+            options={{
+              title: '홈',
+              tabBarIcon: ({ focused }) => (
+                <Image 
+                  source={require('./src/assets/img/home.png')}
+                  style={{ 
+                    width: 24, 
+                    height: 24,
+                    tintColor: focused ? '#6667AB' : '#8E8E93'
+                  }} 
+                />
+              ),
+            }} 
+          />
+          <Tab.Screen 
+            name="RecordScreen" 
+            component={RecordScreen}
+            options={{
+              title: '기록실',
+              tabBarIcon: ({ focused }) => (
+                <Image 
+                  source={require('./src/assets/img/record.png')}
+                  style={{ 
+                    width: 24, 
+                    height: 24,
+                    tintColor: focused ? '#6667AB' : '#8E8E93'
+                  }} 
+                />
+              ),
+            }} 
+          />
+        </Tab.Navigator>
   );
 }
 
-const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+function App() {
+  const [initialRoute, setInitialRoute] = useState<boolean | null>(null);
+  useEffect(() => {
+    const checkDeviceId = async () => {
+      try {
+        const deviceId : string = await DeviceInfo.getUniqueId();
+        console.log("Device ID:", deviceId);
+        const response = await axios.get(`${config.backendUrl}/mainPage/getIds`, 
+          { params: { 
+            uID: deviceId 
+          } }
+        );
+        const result = response.data;
+        console.log("Get response:", result);
+        if (result && result.length > 0) {
+          setInitialRoute(true);
+        } else {
+          setInitialRoute(false);
+        }
+      } catch (error) {
+        console.error("Error checking device ID:", error);
+        setInitialRoute(false);
+      }
+    };
+    checkDeviceId();
+  }, []);
+
+  if (initialRoute === null) {
+    return (
+      <View style={{ flex: 1, backgroundColor: 'white' }} />
+    );
+  }
 
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={isAuthenticated ? 'MainTabs' : 'AuthScreen'}>
+        <Stack.Navigator initialRouteName={initialRoute ? "MainTabs" : "RegisterScreen"}>
           <Stack.Screen
-            name="AuthScreen"
-            component={AuthScreen}
+            name="RegisterScreen"
+            component={RegisterScreen}
             options={{ headerShown: false }}
-            initialParams={{ setIsAuthenticated }}
           />
           <Stack.Screen
             name="MainTabs"
@@ -66,7 +149,6 @@ const App = () => {
       </NavigationContainer>
     </SafeAreaProvider>
   );
-};
+}
 
 export default App;
- 
