@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Welcome to the Home Screen!</Text>
+      <Text style={styles.text}>홈 화면입니다!</Text>
     </View>
   );
 };
@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
   },
 });
 
