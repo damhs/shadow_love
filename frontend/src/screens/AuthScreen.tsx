@@ -1,20 +1,25 @@
+// src/screens/AuthScreen.tsx
 import React, { useState } from 'react';
-import { View, Button, Text, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // 네비게이션 훅 가져오기
+import { Alert, View, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
+import Header from '../components/Header';
+import LoginImage from '../components/login/LoginImage';
+import Button from '../components/Button';
 import axios from 'axios';
 
 const AuthScreen = () => {
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
-  const navigation = useNavigation(); // 네비게이션 객체 가져오기
+  const navigation = useNavigation();
 
-  const KAKAO_REST_API_KEY = '5563e735a457700f9c2b9fee6d1a7539'; // 카카오 REST API 키
-  const REDIRECT_URI = 'http://localhost:3000/kakao/callback'; // Redirect URI
+  // 카카오 REST API 설정
+  const KAKAO_REST_API_KEY = '5563e735a457700f9c2b9fee6d1a7539'; // REST API 키 입력
+  const REDIRECT_URI = 'http://localhost:3000/kakao/callback'; // Redirect URI 입력
   const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
   const handleKakaoLogin = () => {
-    setIsWebViewVisible(true); // WebView를 표시하여 카카오 로그인 진행
+    setIsWebViewVisible(true); // WebView 열기
   };
 
   const handleKakaoCallback = async (code: string) => {
@@ -43,10 +48,10 @@ const AuthScreen = () => {
       });
 
       setUserInfo(userResponse.data);
-      Alert.alert('로그인 성공', `환영합니다, ${userResponse.data.properties.nickname}님!`);
 
-      // **화면 전환: 로그인 성공 후 HomeScreen으로 이동**
-      navigation.navigate('Home'); // HomeScreen으로 전환
+      // 환영 메시지와 화면 전환
+      Alert.alert('로그인 성공', `${userResponse.data.properties.nickname}님 환영합니다!`);
+      navigation.navigate('Home'); // 'Home' 스크린으로 이동
     } catch (error) {
       console.error('카카오 로그인 에러:', error);
       Alert.alert('로그인 실패', '카카오 로그인 중 문제가 발생했습니다.');
@@ -70,12 +75,16 @@ const AuthScreen = () => {
         />
       ) : (
         <>
-          <Button title="카카오 로그인" onPress={handleKakaoLogin} />
-          {userInfo && (
-            <Text style={styles.userInfo}>
-              환영합니다, {userInfo.properties.nickname}님!
-            </Text>
-          )}
+          <LoginImage /> {/* GAMGI 스타일 이미지 */}
+          <Header title="GAMGI" /> {/* GAMGI 스타일 헤더 */}
+          <Button
+            title="카카오 로그인"
+            width="90%"
+            height={55}
+            backgroundColor="#FEE500"
+            textColor="#000"
+            onPress={() => navigation.navigate('Home')} // 카카오 로그인 함수 호출
+          />
         </>
       )}
     </View>
@@ -87,10 +96,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  userInfo: {
-    marginTop: 20,
-    fontSize: 18,
+    backgroundColor: '#FFF8F0',
   },
 });
 

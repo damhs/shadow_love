@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const HomeScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>홈 화면입니다!</Text>
+      <Text style={styles.text}>GAMGI 홈 화면에 오신 것을 환영합니다!</Text>
     </View>
   );
 };
@@ -14,10 +14,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
   },
   text: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });
