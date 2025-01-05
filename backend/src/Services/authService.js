@@ -28,6 +28,15 @@ const getAllUserID = async() => {
   }
 }
 
+const getCouple = async(ID) => {
+  try {
+    const [coupleID] = await pool.query('SELECT coupleID FROM User WHERE ID = ?', [ID]);
+    return coupleID;
+  } catch (error) {
+    console.error('Error getting couple: ', error);
+  }
+}
+
 const deleteUser = async(ID) => {
   try {
     await pool.query('DELETE FROM User WHERE ID = ?', [ID]);
@@ -50,6 +59,7 @@ module.exports = {
   createUser,
   getUser,
   getAllUserID,
+  getCouple,
   deleteUser,
   updateCouple,
 };
