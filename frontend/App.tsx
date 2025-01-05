@@ -1,6 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  ImageBackground,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const App = () => {
   const handleCalendarPress = () => {
@@ -28,71 +36,63 @@ const App = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Top icons */}
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={handleCalendarPress}>
-          <Icon name="calendar-outline" size={30} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleSettingsPress}>
-          <Icon name="settings-outline" size={30} color="#000" />
-        </TouchableOpacity>
-      </View>
+    <ImageBackground
+      source={require('./src/assets/img/background.png')}
+      style={styles.background}>
+      <View style={styles.container}>
+        {/* Top icons */}
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={handleCalendarPress}>
+            <Icon name="calendar-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleSettingsPress}>
+            <Icon name="settings-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
-      {/* Frame */}
-      <View style={styles.frameContainer}>
-        <View style={styles.frame} />
-      </View>
+        {/* Side arrows */}
+        <View style={styles.arrowsContainer}>
+          <TouchableOpacity
+            style={styles.arrowButton}
+            onPress={handleLeftArrowPress}>
+            <Icon name="chevron-back-outline" size={40} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.arrowButton}
+            onPress={handleRightArrowPress}>
+            <Icon name="chevron-forward-outline" size={40} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
-      {/* Side arrows */}
-      <View style={styles.arrowsContainer}>
-        <TouchableOpacity style={styles.arrowButton} onPress={handleLeftArrowPress}>
-          <Icon name="chevron-back-outline" size={40} color="#000" />
+        {/* Floating Buttons */}
+        <TouchableOpacity
+          style={[styles.floatingButton, styles.leftButton]}
+          onPress={handlePencilPress}>
+          <Icon name="brush-outline" size={30} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.arrowButton} onPress={handleRightArrowPress}>
-          <Icon name="chevron-forward-outline" size={40} color="#000" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Bottom buttons */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.iconButton} onPress={handlePencilPress}>
-          <Icon name="pencil-outline" size={30} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} onPress={handleGridPress}>
-          <Icon name="grid-outline" size={30} color="#000" />
+        <TouchableOpacity
+          style={[styles.floatingButton, styles.rightButton]}
+          onPress={handleGridPress}>
+          <MaterialIcons name="museum" size={30} color="#fff" />
         </TouchableOpacity>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f4f4f4',
   },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginTop: 20,
-  },
-  frameContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  frame: {
-    width: '80%',
-    height: '60%',
-    borderWidth: 2,
-    borderColor: '#000',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
   },
   arrowsContainer: {
     flexDirection: 'row',
@@ -105,14 +105,27 @@ const styles = StyleSheet.create({
   arrowButton: {
     padding: 10,
   },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 50,
-    paddingVertical: 20,
-  },
-  iconButton: {
+  floatingButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    backgroundColor: '#6200ee',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  leftButton: {
+    bottom: 20,
+    left: 20,
+  },
+  rightButton: {
+    bottom: 20,
+    right: 20,
   },
 });
 
