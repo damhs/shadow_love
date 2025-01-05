@@ -1,43 +1,55 @@
 const pool = require('../mysql.js');
+const uuid = require('uuid-sequential');
 
-const getUserID = async (id) => {
+const createUser = async(ID) => {
   try {
-    const [result] = await pool.query('SELECT userID FROM User WHERE id = ?', [id]);
-    return result[0].userID;
-  } catch (error) {
-    console.error('Error getting userID: ', error);
-  }
-}
-
-const getPassword = async (id) => {
-  try {
-    const [result] = await pool.query('SELECT password FROM User WHERE id = ?', [id]);
-    return result[0].password;
-  }  catch (error) {
-    console.error('Error getting password: ', error);
-  }
-};
-
-const createUser = async (name, id, password) => {
-  try {
-    await pool.query('INSERT INTO User (userID, name, id, password) VALUES (UUID_TO_BIN(UUID(), 1), ?, ?, ?)', [name, id, password]);
-  } catch (error) {
-    console.error('Error creating user: ', error);
-  }
-};
-
-const createKakaoUser = async (name, email) => {
-  try {
-    await pool.query('INSERT INTO User (userID, name, email) VALUES (UUID_TO_BIN(UUID(), 1), ?, ?)', [name, email]);
+    await pool.query('INSERT INTO User (ID) VALUES (?))', [ID]);
+    return ID;
   } catch (error) {
     console.error('Error creating user: ', error);
   }
 }
 
+const getUser = async(ID) => {
+  try {
+    const [user] = await pool.query('SELECT * FROM User WHERE ID = ?', [ID]);
+    return user;
+  } catch (error) {
+    console.error('Error getting user: ', error);
+  }
+}
+
+const getAllUserID = async() => {
+  try {
+    const [ID] = await pool.query('SELECT ID FROM User');
+    return ID;
+  } catch (error) {
+    console.error('Error getting user: ', error);
+  }
+}
+
+const deleteUser = async(ID) => {
+  try {
+    await pool.query('DELETE FROM User WHERE ID = ?', [ID]);
+    return ID;
+  } catch (error) {
+    console.error('Error deleting user: ', error);
+  }
+}
+
+const updateCouple = async(ID, coupleID) => {
+  try {
+    await pool.query('UPDATE User SET coupleID = ? WHERE ID = ?', [coupleID, ID]);
+    return coupleID;
+  } catch (error) {
+    console.error('Error updating couple: ', error);
+  }
+}
 
 module.exports = {
-  getUserID,
-  getPassword,
   createUser,
-  createKakaoUser,
+  getUser,
+  getAllUserID,
+  deleteUser,
+  updateCouple,
 };

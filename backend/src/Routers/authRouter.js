@@ -1,46 +1,70 @@
 const express = require('express');
+const crypto = require('crypto');
 const {
-  getUserID,
-  getPassword,
-  createUser,
-  createKakaoUser,
+    createUser,
+    getUser,
+    getAllUserID,
+    deleteUser,
+    updateCouple,
 } = require('../Services/authService.js');
-const bcrypt = require('bcrypt');
 
 const authRouter = express.Router();
 
-authRouter.get('/login', async (req, res) => {
-  const { id, password } = req.query;
-  try {
-      const hashedPassword = await getPassword(id);
-      const isPasswordMatch = await bcrypt.compare(password, hashedPassword);
-      res.status(200).json(isPasswordMatch);
-  } catch (error) {
-      res.status(500).json({ error: "Failed to login" });
-  }
-});
+function generateCoupleRegisterID(deviceID) {
+  const crypto = require("crypto");
+  const hash = crypto.createHash("md5").update(deviceID).digest("hex"); // MD5 해시
+  return parseInt(hash.substring(0, 8), 16) % 1000000; // 6자리 숫자 생성
+}
 
-authRouter.post('/signUp', async (req, res) => {
-  const { name, id, password } = req.body;
+async function findIDByCoupleRegisterID(coupleregisterID) {
+  const allUserID = await getAllUserID();
+  for (const ID of allUserID) {
+      if (generateCoupleRegisterID(ID) === coupleregisterID) {
+          return ID;
+      }
+  }
+  throw new Error("No matching deviceID found for the given code");
+}
+
+authRouter.post('/createUser', async (req, res) => {
+  const { ID } = req.body;
   try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await createUser(name, id, hashedPassword);
+      await createUser(ID);
       res.status(200).json({ message: "User created" });
   } catch (error) {
       res.status(500).json({ error: "Failed to create user" });
   }
 });
 
-authRouter.post('/kakaoSignUp', async (req, res) => {
-  const { name, email } = req.body;
+authRouter.get('/getUser', async (req, res) => {
+  const { ID } = req.body;
   try {
-      await createKakaoUser(name, email);
-      res.status(200).json({ message: "Kakao user created" });
+      const user = await getUser(ID);
+      res.status(200).json(user);
   } catch (error) {
-      res.status(500).json({ error: "Failed to create kakao user" });
+      res.status(500).json({ error: "Failed to get user" });
   }
 });
 
+authRouter.delete('/deleteUser', async (req, res) => {
+  const { ID } = req.body;
+  try {
+      await deleteUser(ID);
+      res.status(200).json({ message: "User deleted" });
+  } catch (error) {
+      res.status(500).json({ error: "Failed to delete user" });
+  }
+});
 
+authRouter.put('/updateCouple', async (req, res) => {
+  const { ID, coupleregisterID } = req.body;
+  try {
+      const coupleID = await findIDByCoupleRegisterID(coupleregisterID);
+      await updateCouple(ID, coupleID);
+      res.status(200).json({ message: "Couple updated" });
+  } catch (error) {
+      res.status(500).json({ error: "Failed to update couple" });
+  }
+});
 
 module.exports = authRouter;
