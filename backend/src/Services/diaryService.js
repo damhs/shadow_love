@@ -11,39 +11,27 @@ const createQuestion = async (questionText) => {
   }
 }
 
-const createAnswer = async (answerText) => {
-  try {
-    const answerID = uuid();
-    await pool.query('INSERT INTO Answer (answerID, answerText) VALUES (UUID_TO_BIN(?, 1), ?)', [answerID, answerText]);
-    return answerID;
-  } catch (error) {
-    console.error('Error creating answer: ', error);
-  }
-}
-
-const createEmotion = async (getUserID, questionID, answerID, questionID2, answerID2, questionID3, answerID3) => {
-  try {
-    const emotionID = uuid();
-    await pool.query('INSERT INTO Emotion (emotionID, userID, questionID, answerID, questionID2, answerID2, questionID3, answerID3) VALUES (UUID_TO_BIN(?, 1), ?, ?, ?, ?, ?, ?, ?)', [emotionID, getUserID, questionID, answerID, questionID2, answerID2, questionID3, answerID3]);
-    return emotionID;
-  } catch (error) {
-    console.error('Error creating emotion: ', error);
-  }
-}
-
 const getRandomQuestion = async () => {
   try {
-    const [questionText] = await pool.query('SELECT questionText FROM Question ORDER BY RAND() LIMIT 1');
-    return questionText;
+    const [questionID, questionText] = await pool.query('SELECT BIN_TO_UUID(questionID), questionText FROM Question ORDER BY RAND() LIMIT 1');
+    return [questionID, questionText];
   } catch (error) {
     console.error('Error getting question: ', error);
   }
 }
 
+const createDiary = async (ID, questionID1, answerText1, questionID2, answerText2, questionID3, answerText3) => {
+  try {
+    const diaryID = uuid();
+    await pool.query('INSERT INTO Diary (diaryID, ID, questionID1, answerText1, questionID2, answerText2, questionID3, answerText3) VALUES (UUID_TO_BIN(?, 1), ?, UUID_TO_BIN(?, 1), ?, UUID_TO_BIN(?, 1), ?, UUID_TO_BIN(?, 1), ?)', [diaryID, ID, questionID1, answerText1, questionID2, answerText2, questionID3, answerText3]);
+    return diaryID;
+  } catch (error) {
+    console.error('Error creating diary: ', error);
+  }
+}
 
 module.exports = {
   createQuestion,
-  createAnswer,
-  createEmotion,
   getRandomQuestion,
+  createDiary,
 }
