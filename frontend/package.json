@@ -20,6 +20,7 @@
     "react-native": "0.76.5",
     "react-native-calendars": "^1.1307.0",
     "react-native-device-info": "^14.0.2",
+    "react-native-floating-action": "^1.22.0",
     "react-native-gesture-handler": "^2.21.2",
     "react-native-get-random-values": "^1.11.0",
     "react-native-reanimated": "^3.16.6",
@@ -46,6 +47,7 @@
     "babel-jest": "^29.6.3",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
+    "metro-react-native-babel-preset": "^0.77.0",
     "prettier": "2.8.8",
     "react-test-renderer": "18.3.1",
     "typescript": "5.0.4"

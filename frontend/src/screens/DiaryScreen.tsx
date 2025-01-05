@@ -1,83 +1,160 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Alert,
+} from 'react-native';
+import questionsData from '../../datas/questions.json';
 
-const CalendarScreen = ({ navigation }) => {
-  const [markedDates, setMarkedDates] = useState({
-    '2025-12-03': { marked: true, dotColor: 'black' },
-    '2025-12-04': { marked: true, dotColor: 'red' },
-    '2025-12-11': { marked: true, dotColor: 'blue' },
-    '2025-12-12': { marked: true, dotColor: 'purple' },
-  });
+const DiaryScreen = ({ navigation }) => {
+  const [selectedQuestions, setSelectedQuestions] = useState([]); // 선택된 질문 상태
+  const [answers, setAnswers] = useState(['', '', '']); // 질문에 대한 답변 상태
 
-  const onDayPress = (day) => {
-    const selectedDate = day.dateString;
-    setMarkedDates({
-      ...markedDates,
-      [selectedDate]: {
-        selected: true,
-        selectedColor: 'pink',
-      },
-    });
+  useEffect(() => {
+    // 질문 그룹에서 3개를 랜덤으로 선택하고, 각 그룹에서 1개의 질문을 뽑음
+    const selectRandomQuestions = () => {
+      const randomGroups = [];
+      while (randomGroups.length < 3) {
+        const randomIndex = Math.floor(Math.random() * questionsData.length);
+        if (!randomGroups.includes(randomIndex)) {
+          randomGroups.push(randomIndex);
+        }
+      }
+
+      // 각 그룹에서 질문 1개씩 뽑기
+      const selected = randomGroups.map((groupIndex) => {
+        const group = questionsData[groupIndex];
+        const randomQuestionIndex = Math.floor(
+          Math.random() * group.length
+        );
+        return group[randomQuestionIndex].title; // 질문 제목(title) 반환
+      });
+
+      setSelectedQuestions(selected);
+    };
+
+    selectRandomQuestions();
+  }, []);
+
+  // 답변 입력 업데이트
+  const handleAnswerChange = (index, text) => {
+    if (text.length <= 200) { // 200자 제한
+      const updatedAnswers = [...answers];
+      updatedAnswers[index] = text;
+      setAnswers(updatedAnswers);
+    } else {
+      Alert.alert('Limit Exceeded', 'You can only enter up to 200 characters.');
+    }
+  };
+
+  const handleSave = () => {
+    Alert.alert('Diary Saved', 'Your answers have been saved!');
+  };
+
+  const handleBack = () => {
+    navigation.goBack();
   };
 
   return (
-    <View style={styles.container}>
-      {/* 캘린더 컴포넌트 */}
-      <Calendar
-        // 현재 날짜
-        current={'2025-12-01'}
-        // 날짜 선택 이벤트
-        onDayPress={onDayPress}
-        // 이전/다음 달로 이동
-        onMonthChange={(month) => console.log('Month changed', month)}
-        // 마킹된 날짜 설정
-        markedDates={markedDates}
-        // 스타일 설정
-        theme={{
-          textDayFontSize: 16,
-          textMonthFontSize: 20,
-          textDayHeaderFontSize: 14,
-          arrowColor: 'black',
-          selectedDayBackgroundColor: 'pink',
-          selectedDayTextColor: 'white',
-          todayTextColor: 'red',
-          dotColor: 'black',
-        }}
-        // 커스텀 화살표
-        renderArrow={(direction) => (
-          <Text style={styles.arrow}>{direction === 'left' ? '←' : '→'}</Text>
-        )}
-      />
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Today's Diary Questions</Text>
 
-      {/* 뒤로 가기 버튼 */}
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.goBack()} // Navigation에서 이전 화면으로 이동
-      >
-        <Text style={styles.buttonText}>Back to Main</Text>
-      </TouchableOpacity>
-    </View>
+      {selectedQuestions.map((question, index) => (
+        <View key={index} style={styles.questionContainer}>
+          <Text style={styles.question}>
+            {index + 1}. {question}
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Write your answer here..."
+            value={answers[index]}
+            onChangeText={(text) => handleAnswerChange(index, text)}
+            multiline={true}
+            maxLength={200} // 200자 제한 (UI에서 제한)
+          />
+          <Text style={styles.charCount}>
+            {answers[index].length}/200
+          </Text>
+        </View>
+      ))}
+
+      <View style={styles.buttonContainer}>
+        {/* Back 버튼 */}
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.buttonText}>Back</Text>
+        </TouchableOpacity>
+
+        {/* Save 버튼 */}
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 10,
-    backgroundColor: '#fff',
-  },
-  arrow: {
-    fontSize: 20,
-    color: 'black',
-  },
-  button: {
-    marginTop: 20,
-    backgroundColor: 'pink',
-    padding: 15,
-    borderRadius: 8,
     alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f8f9fa',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  questionContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  question: {
+    fontSize: 18,
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  input: {
+    height: 80,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    textAlignVertical: 'top',
+  },
+  charCount: {
+    textAlign: 'right',
+    marginTop: 5,
+    fontSize: 14,
+    color: '#555',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    width: '100%',
+  },
+  backButton: {
+    backgroundColor: '#6c757d',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    width: '45%',
+  },
+  saveButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    width: '45%',
   },
   buttonText: {
     color: 'white',
@@ -86,4 +163,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CalendarScreen;
+export default DiaryScreen;
