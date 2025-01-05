@@ -1,17 +1,20 @@
 [
   {
     "image": "painting1",
-    "title": "언제까지고 함께",
-    "date": "2025-01-03"
+    "title": "마지막 인사",
+    "date": "2025-01-03",
+    "color": "F64A4A"
   },
   {
     "image": "painting2",
     "title": "서로를 이해하는 과정",
-    "date": "2025-01-04"
+    "date": "2025-01-04",
+    "color": "6E0DF5"
   },
   {
     "image": "painting3",
     "title": "살아난 금상",
-    "date": "2025-01-05"
+    "date": "2025-01-05",
+    "color": "18FE28"
   }
 ]
