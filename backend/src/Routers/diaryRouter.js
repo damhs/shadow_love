@@ -2,16 +2,18 @@ const express = require('express');
 const {
   createQuestion,
   createAnswer,
-  getQuestion,
+  createEmotion,
+  getRandomQuestion,
 } = require('../Services/diaryService.js');
+const { getUserID } = require('../Services/authService.js');
 
 const diaryRouter = express.Router();
 
 diaryRouter.post('/createQuestion', async (req, res) => {
   const { questionText } = req.body;
   try {
-    await createQuestion(questionText);
-    res.status(200).json({ message: "Question created" });
+    const questionID = await createQuestion(questionText);
+    res.status(200).json(questionID);
   } catch (error) {
     res.status(500).json({ error: "Failed to create question" });
   }
@@ -20,16 +22,27 @@ diaryRouter.post('/createQuestion', async (req, res) => {
 diaryRouter.post('/createAnswer', async (req, res) => {
   const { answerText } = req.body;
   try {
-    await createAnswer(answerText);
-    res.status(200).json({ message: "Answer created" });
+    const answerID = await createAnswer(answerText);
+    res.status(200).json(answerID);
   } catch (error) {
     res.status(500).json({ error: "Failed to create answer" });
   }
 });
 
-diaryRouter.get('/getQuestion', async (req, res) => {
+diaryRouter.post('/createEmotion', async (req, res) => {
+  const { questionID, answerID, questionID2, answerID2, questionID3, answerID3 } = req.body;
+  const userID = await getUserID(req.headers.authorization);
   try {
-    const questionText = await getQuestion();
+    const emotionID = await createEmotion(userID, questionID, answerID, questionID2, answerID2, questionID3, answerID3);
+    res.status(200).json(emotionID);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create emotion" });
+  }
+});
+
+diaryRouter.get('/getRandomQuestion', async (req, res) => {
+  try {
+    const questionText = await getRandomQuestion();
     res.status(200).json(questionText);
   } catch (error) {
     res.status(500).json({ error: "Failed to get question" });
