@@ -6,7 +6,6 @@ const dotenv = require('dotenv');
 
 const authRouter = require('./src/Routers/authRouter');
 const artworkRouter = require('./src/Routers/artworkRouter');
-const coupleRouter = require('./src/Routers/coupleRouter');
 const diaryRouter = require('./src/Routers/diaryRouter');
 
 dotenv.config();
@@ -28,7 +27,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // router
 app.use('/auth', authRouter);
 app.use('/artwork', artworkRouter);
-app.use('/couple', coupleRouter);
 app.use('/diary', diaryRouter);
 
 const server = http.createServer(app);

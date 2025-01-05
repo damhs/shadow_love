@@ -1,0 +1,13 @@
+POST http://localhost:3001/diary/createQuestion/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "questionText": "What is your favorite color?"
+}
+
+###
+
+GET http://localhost:3001/diary/getRandomQuestion/ HTTP/1.1
+
+###
+
