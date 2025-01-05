@@ -107,6 +107,41 @@ const getEmotion = async (ID, date) => {
   }
 };
 
+const getColor = async (ID) => {
+  try {
+    const formattedDate = getDate();
+    const [color] = await pool.query(
+      "SELECT color FROM Emotion WHERE ID = ? AND date = ?",
+      [ID, formattedDate]
+    );
+    return color[0].color;
+  } catch (error) {
+    console.error("Error getting color: ", error);
+  }
+}
+
+const createArtwork = async (ID1, ID2, emotionID1, emotionID2, artworkPath) => {
+  try {
+    const artworkID = uuid();
+    const formattedDate = getDate();
+    await pool.query(
+      "INSERT INTO Artwork (artworkID, ID1, ID2, emotionID1, emotionID2, artworkPath, date) VALUES (UUID_TO_BIN(?, 1), ?, ?, ?, ?, ?, ?)",
+      [
+        artworkID,
+        ID1,
+        ID2,
+        emotionID1,
+        emotionID2,
+        artworkPath,
+        formattedDate,
+      ]
+    );
+    return artworkID;
+  } catch (error) {
+    console.error("Error creating artwork: ", error);
+  }
+}
+
 module.exports = {
   createQuestion,
   getRandomQuestion,
@@ -114,4 +149,6 @@ module.exports = {
   getDiary,
   createEmotion,
   getEmotion,
+  getColor,
+  createArtwork,
 };

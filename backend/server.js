@@ -5,8 +5,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 
 const authRouter = require('./src/Routers/authRouter');
-const artworkRouter = require('./src/Routers/artworkRouter');
-const diaryRouter = require('./src/Routers/diaryRouter');
+const mainRouter = require('./src/Routers/mainRouter');
 
 dotenv.config();
 
@@ -16,7 +15,7 @@ app.set("port", 3001);
 app.set("host", "0.0.0.0");
 
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: "http://localhost:3001",
     credentials: true
 };
 
@@ -26,8 +25,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // router
 app.use('/auth', authRouter);
-app.use('/artwork', artworkRouter);
-app.use('/diary', diaryRouter);
+app.use('/main', mainRouter);
 
 const server = http.createServer(app);
 server.listen(app.get("port"), app.get("host"), () =>

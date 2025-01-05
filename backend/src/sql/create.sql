@@ -58,6 +58,8 @@ CREATE TABLE
     `emotionID2` BINARY(16) NOT NULL,
     `artworkPath` VARCHAR(255) NOT NULL, -- 서버에 이미지 저장 후 DB에 경로 저장
     `date` DATE, -- 날짜만 저장, 기본값은 오늘 날짜
+    `title` VARCHAR(20);
+    `description` VARCHAR(255); -- 작품 설명
     PRIMARY KEY (`artworkID`),
     FOREIGN KEY (`ID1`) REFERENCES `User` (`ID`) ON DELETE CASCADE,
     FOREIGN KEY (`ID2`) REFERENCES `User` (`ID`) ON DELETE CASCADE,
