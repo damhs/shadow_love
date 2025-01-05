@@ -10,9 +10,8 @@ const {
 
 const authRouter = express.Router();
 
-function generateCoupleRegisterID(deviceID) {
-  const crypto = require("crypto");
-  const hash = crypto.createHash("md5").update(deviceID).digest("hex"); // MD5 해시
+function generateCoupleRegisterID(ID) {
+  const hash = crypto.createHash("md5").update(ID).digest("hex"); // MD5 해시
   return parseInt(hash.substring(0, 8), 16) % 1000000; // 6자리 숫자 생성
 }
 
@@ -23,7 +22,7 @@ async function findIDByCoupleRegisterID(coupleregisterID) {
           return ID;
       }
   }
-  throw new Error("No matching deviceID found for the given code");
+  throw new Error("No matching ID found for the given code");
 }
 
 authRouter.post('/createUser', async (req, res) => {
@@ -56,7 +55,7 @@ authRouter.delete('/deleteUser', async (req, res) => {
   }
 });
 
-authRouter.put('/updateCouple', async (req, res) => {
+authRouter.patch('/updateCouple', async (req, res) => {
   const { ID, coupleregisterID } = req.body;
   try {
       const coupleID = await findIDByCoupleRegisterID(coupleregisterID);

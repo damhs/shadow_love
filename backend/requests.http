@@ -2,24 +2,39 @@ GET http://localhost:3001/
 
 ###
 
-GET http://localhost:3001/auth/login/ HTTP/1.1
-Content-Type: application/json
-
-###
-
-POST http://localhost:3001/auth/kakaoSignUp/ HTTP/1.1
+POST http://localhost:3001/auth/createUser/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "이한샘",
-    "email": "ihansaem1@kaist.ac.kr"
+    "ID": "3b52b204-bf91-4e5b-a48a-440245ce663f"
 }
 
 ###
 
-POST http://localhost:3001/question/createQuestion/ HTTP/1.1
+POST http://localhost:3001/auth/getUser/ HTTP/1.1
 Content-Type: application/json
 
 {
-  "question": "이거 뭐야?"
+    "ID": "3b52b204-bf91-4e5b-a48a-440245ce663f"
 }
+
+###
+
+DELETE http://localhost:3001/auth/deleteUser/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "ID": "3b52b204-bf91-4e5b-a48a-440245ce663f"
+}
+
+###
+
+PATCH http://localhost:3001/auth/updateCouple/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "ID": "3b52b204-bf91-4e5b-a48a-440245ce663f",
+    "coupleID": "3b52b204-bf91-4e5b-a48a-440245ce663f"
+}
+
+###
