@@ -235,14 +235,21 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   input: {
-    height: 80,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
+    height: 100, // 박스 높이를 키워서 텍스트 공간 추가
+    borderRadius: 10, // 부드러운 곡선 모서리
+    padding: 15,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', // 흰색 배경
     textAlignVertical: 'top',
+    color: '#333', // 텍스트 색상
+    borderWidth: 1, // 테두리 추가
+    borderColor: '#ddd', // 테두리 색상
+    shadowColor: '#000', // 그림자 효과
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5, // Android 그림자 효과
+    backgroundImage: 'url("../assets/img/diary_background.png")', // 텍스처 이미지 적용
   },
   charCount: {
     textAlign: 'right',

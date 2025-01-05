@@ -7484,6 +7484,11 @@ react-native-vector-icons@^10.2.0:
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
+react-native-video@^6.9.0:
+  version "6.9.0"
+  resolved "https://registry.npmjs.org/react-native-video/-/react-native-video-6.9.0.tgz"
+  integrity sha512-iWuj9XzYChUCZueKjGE2fFNLVosqmm7fXenDZjcofkNXZVYr2BNBOLlq7exr0b/H5qjVlWFiE3Mkizaxlh0vOA==
+
 react-native-webview@*, react-native-webview@^13.12.5:
   version "13.12.5"
   resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-13.12.5.tgz"
