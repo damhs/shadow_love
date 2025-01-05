@@ -7,6 +7,7 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  ImageBackground,
 } from 'react-native';
 import questionsData from '../../datas/questions.json';
 
@@ -60,56 +61,64 @@ const DiaryScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Today's Diary Questions</Text>
+    <ImageBackground
+      source={require('../assets/img/diary_background.png')} // 배경 이미지 경로
+      style={styles.background}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Today's Diary Questions</Text>
 
-      {selectedQuestions.map((question, index) => (
-        <View key={index} style={styles.questionContainer}>
-          <Text style={styles.question}>
-            {index + 1}. {question}
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Write your answer here..."
-            value={answers[index]}
-            onChangeText={(text) => handleAnswerChange(index, text)}
-            multiline={true}
-            maxLength={200} // 200자 제한 (UI에서 제한)
-          />
-          <Text style={styles.charCount}>
-            {answers[index].length}/200
-          </Text>
+        {selectedQuestions.map((question, index) => (
+          <View key={index} style={styles.questionContainer}>
+            <Text style={styles.question}>
+              {index + 1}. {question}
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Write your answer here..."
+              value={answers[index]}
+              onChangeText={(text) => handleAnswerChange(index, text)}
+              multiline={true}
+              maxLength={200} // 200자 제한 (UI에서 제한)
+            />
+            <Text style={styles.charCount}>
+              {answers[index].length}/200
+            </Text>
+          </View>
+        ))}
+
+        <View style={styles.buttonContainer}>
+          {/* Back 버튼 */}
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
+
+          {/* Save 버튼 */}
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
         </View>
-      ))}
-
-      <View style={styles.buttonContainer}>
-        {/* Back 버튼 */}
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Text style={styles.buttonText}>Back</Text>
-        </TouchableOpacity>
-
-        {/* Save 버튼 */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
   container: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f8f9fa',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#fff', // 배경에 대비되는 텍스트 색상
   },
   questionContainer: {
     width: '100%',
@@ -119,6 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     fontWeight: 'bold',
+    color: '#fff', // 배경에 대비되는 텍스트 색상
   },
   input: {
     height: 80,
@@ -134,7 +144,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginTop: 5,
     fontSize: 14,
-    color: '#555',
+    color: '#aaa', // 배경에 대비되는 색상
   },
   buttonContainer: {
     flexDirection: 'row',
