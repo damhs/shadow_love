@@ -14,7 +14,6 @@ const authRouter = express.Router();
 function generateCoupleRegisterID(ID) {
   console.log(ID);
   const hash = crypto.createHash("md5").update(ID).digest("hex"); // MD5 해시
-  console.log(hash);
   console.log(parseInt(hash.substring(0, 8), 16) % 1000000);
   return parseInt(hash.substring(0, 8), 16) % 1000000; // 6자리 숫자 생성
 }

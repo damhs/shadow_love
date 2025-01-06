@@ -3,7 +3,8 @@ const uuid = require('uuid-sequential');
 
 const createUser = async(ID) => {
   try {
-    await pool.query('INSERT INTO User (ID) VALUES (?))', [ID]);
+    await pool.query('INSERT INTO User (ID) VALUES (?)', [ID]);
+    console.log(ID);
     return ID;
   } catch (error) {
     console.error('Error creating user: ', error);
