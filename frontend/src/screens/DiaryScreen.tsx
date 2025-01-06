@@ -9,101 +9,35 @@ import {
   Alert,
   ImageBackground,
 } from 'react-native';
-import RNFS from 'react-native-fs';
-import questionsData from '../../datas/questions.json';
+import DeviceInfo from 'react-native-device-info';
+import axios from 'axios';
+import config from '../config';
+
+const baseUrl = config.backendUrl;
 
 const DiaryScreen = ({ navigation }) => {
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [answers, setAnswers] = useState(['', '', '']);
-  const [isComplete, setIsComplete] = useState(false); // 완료 여부
-  const questionsFilePath = `${RNFS.DocumentDirectoryPath}/today_questions.json`;
+  const [isComplete, setIsComplete] = useState(false); // Completion status
 
-  const loadOrCreateQuestions = async () => {
+  const fetchRandomQuestions = async () => {
     try {
-      console.log('Checking if file exists:', questionsFilePath);
-      const fileExists = await RNFS.exists(questionsFilePath);
+      const questions = await Promise.all([
+        axios.get(`${baseUrl}/main/getRandomQuestion`),
+        axios.get(`${baseUrl}/main/getRandomQuestion`),
+        axios.get(`${baseUrl}/main/getRandomQuestion`),
+      ]);
+      console.log('questions:', questions);
 
-      if (fileExists) {
-        console.log('File exists. Reading file...');
-        const fileContent = await RNFS.readFile(questionsFilePath, 'utf8');
-        const savedData = JSON.parse(fileContent);
-
-        if (savedData.questions && savedData.questions.length === 3) {
-          setSelectedQuestions(savedData.questions.map((q) => q.title));
-          setAnswers(savedData.answers || ['', '', '']);
-          setIsComplete(savedData.isComplete || false); // 완료 여부 로드
-          console.log('Questions loaded from file:', savedData);
-          return;
-        } else {
-          console.warn('File exists but does not contain valid questions. Creating new...');
-        }
-      } else {
-        console.warn('File does not exist. Creating new...');
-      }
-
-      // 파일이 없거나 유효하지 않을 경우 새 질문 생성
-      await createAndSaveQuestions();
+      const questionTexts = questions.map((res) => res.data.questionText);
+      setSelectedQuestions(questionTexts);
     } catch (error) {
-      console.error('Error loading or creating questions:', error);
-    }
-  };
-
-  const createAndSaveQuestions = async () => {
-    try {
-      console.log('Generating new questions...');
-      const randomGroups = [];
-      while (randomGroups.length < 3) {
-        const randomIndex = Math.floor(Math.random() * questionsData.length);
-        if (!randomGroups.includes(randomIndex)) {
-          randomGroups.push(randomIndex);
-        }
-      }
-
-      const newQuestions = randomGroups.map((groupIndex) => {
-        const group = questionsData[groupIndex];
-        const randomQuestionIndex = Math.floor(Math.random() * group.length);
-        return { title: group[randomQuestionIndex].title };
-      });
-
-      console.log('Saving questions to file:', newQuestions);
-
-      const newData = {
-        questions: newQuestions,
-        answers: ['', '', ''], // 초기 답변
-        isComplete: false, // 초기 완료 상태
-      };
-
-      await RNFS.writeFile(questionsFilePath, JSON.stringify(newData), 'utf8');
-      console.log('Questions saved successfully!');
-
-      setSelectedQuestions(newQuestions.map((q) => q.title));
-      setAnswers(['', '', '']);
-      setIsComplete(false);
-    } catch (error) {
-      console.error('Error saving new questions:', error);
-    }
-  };
-
-  const saveAnswers = async () => {
-    try {
-      const savedData = {
-        questions: selectedQuestions.map((title) => ({ title })),
-        answers,
-        isComplete,
-      };
-
-      console.log('Saving answers to file:', savedData);
-      await RNFS.writeFile(questionsFilePath, JSON.stringify(savedData), 'utf8');
-      console.log('Answers saved successfully!');
-      Alert.alert('Diary Saved', 'Your answers have been saved!');
-    } catch (error) {
-      console.error('Error saving answers:', error);
-      Alert.alert('Error', 'Failed to save your answers. Please try again.');
+      console.error('Error fetching random questions:', error);
+      Alert.alert('Error', 'Failed to fetch questions. Please try again.');
     }
   };
 
   const handleComplete = async () => {
-    // 모든 답변이 작성되었는지 확인
     const allFilled = answers.every((answer) => answer.trim().length > 0);
 
     if (!allFilled) {
@@ -112,31 +46,59 @@ const DiaryScreen = ({ navigation }) => {
     }
 
     try {
-      setIsComplete(true); // 완료 상태 설정
+      // Step 1: Save Diary
+      const diaryResponse = await axios.post('http://<YOUR_SERVER>/createDiary', {
+        ID: '<USER_ID>', // Replace with dynamic user ID
+        questionID1: selectedQuestions[0],
+        answerText1: answers[0],
+        questionID2: selectedQuestions[1],
+        answerText2: answers[1],
+        questionID3: selectedQuestions[2],
+        answerText3: answers[2],
+      });
 
-      const savedData = {
-        questions: selectedQuestions.map((title) => ({ title })),
-        answers,
-        isComplete: true,
-      };
+      const diaryID = diaryResponse.data;
 
-      console.log('Marking diary as complete:', savedData);
-      await RNFS.writeFile(questionsFilePath, JSON.stringify(savedData), 'utf8');
-      console.log('Diary marked as complete!');
-      Alert.alert('Diary Completed', 'You have completed today\'s diary!');
+      // Step 2: Create Emotion
+      const emotionResponse = await axios.post('http://<YOUR_SERVER>/createEmotion', {
+        ID: '<USER_ID>', // Replace with dynamic user ID
+      });
+
+      const emotionID = emotionResponse.data;
+
+      // Step 3: Check Couple's Emotion
+      const coupleEmotionResponse = await axios.get('http://<YOUR_SERVER>/getEmotion', {
+        params: { ID: '<PARTNER_ID>' }, // Replace with dynamic partner ID
+      });
+
+      // Step 3-1: Wait for Partner's Emotion
+      if (!coupleEmotionResponse.data) {
+        Alert.alert('Waiting for Partner', 'Please wait for your partner to complete their diary.');
+        return;
+      } else {}
+
+      // Step 3-2: Generate Artwork
+      const artworkResponse = await axios.post('http://<YOUR_SERVER>/createArtwork', {
+        ID1: '<USER_ID>', // Replace with dynamic user ID
+        ID2: '<PARTNER_ID>', // Replace with dynamic partner ID
+      });
+
+      const artworkID = artworkResponse.data;
+
+      Alert.alert('Diary Completed', 'Your diary, emotion, and artwork have been saved!');
+      setIsComplete(true);
     } catch (error) {
-      console.error('Error marking diary as complete:', error);
+      console.error('Error completing diary:', error);
       Alert.alert('Error', 'Failed to complete the diary. Please try again.');
     }
   };
 
   useEffect(() => {
-    loadOrCreateQuestions();
+    fetchRandomQuestions();
   }, []);
 
   const handleAnswerChange = (index, text) => {
     if (!isComplete) {
-      // 완료된 상태에서는 수정 불가
       if (text.length <= 200) {
         const updatedAnswers = [...answers];
         updatedAnswers[index] = text;
@@ -145,10 +107,6 @@ const DiaryScreen = ({ navigation }) => {
         Alert.alert('Limit Exceeded', 'You can only enter up to 200 characters.');
       }
     }
-  };
-
-  const handleBack = () => {
-    navigation.goBack();
   };
 
   return (
@@ -166,14 +124,14 @@ const DiaryScreen = ({ navigation }) => {
             <TextInput
               style={[
                 styles.input,
-                isComplete && { backgroundColor: '#e9ecef', color: '#6c757d' }, // 완료 상태에서는 비활성화 스타일
+                isComplete && { backgroundColor: '#e9ecef', color: '#6c757d' },
               ]}
               placeholder="Write your answer here..."
               value={answers[index]}
               onChangeText={(text) => handleAnswerChange(index, text)}
               multiline={true}
               maxLength={200}
-              editable={!isComplete} // 완료 상태에서는 수정 불가
+              editable={!isComplete}
             />
             <Text style={styles.charCount}>
               {answers[index].length}/200
@@ -182,24 +140,14 @@ const DiaryScreen = ({ navigation }) => {
         ))}
 
         <View style={styles.buttonContainer}>
-          {/* Back 버튼 */}
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.buttonText}>Back</Text>
+          <TouchableOpacity
+            style={styles.completeButton}
+            onPress={handleComplete}
+            disabled={isComplete}>
+            <Text style={styles.buttonText}>
+              {isComplete ? 'Completed' : 'Complete'}
+            </Text>
           </TouchableOpacity>
-
-          {/* Save 버튼 */}
-          {!isComplete && (
-            <TouchableOpacity style={styles.saveButton} onPress={saveAnswers}>
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-          )}
-
-          {/* 완료 버튼 */}
-          {!isComplete && (
-            <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
-              <Text style={styles.buttonText}>Complete</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </ScrollView>
     </ImageBackground>
