@@ -170,4 +170,8 @@ const styles = StyleSheet.create({
   },
 });
 
+<<<<<<< HEAD
 export default CustomCalendarScreen;
+=======
+export default CustomCalendarScreen;
+>>>>>>> 1a3aaf4216937d5b5dd005f2e1f757a34f9fda02

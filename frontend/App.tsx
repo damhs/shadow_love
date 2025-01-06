@@ -32,20 +32,23 @@ const App = () => {
           axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } }),
         ]);
 
+        console.log('userResponse:', userResponse.data);
+        console.log('coupleResponse:', coupleResponse.data);
+
         if (userResponse.data.length === 0) {
           await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
         }
-        console.log('coupleResponse.data:', coupleResponse.data[0]["coupleID"]);
+
         // 데이터 확인 후 초기 라우트 설정
-        if (coupleResponse.data[0]["coupleID"]!== null) {
+        if (coupleResponse.data !== null) {
           setInitialRoute('Home');
         } else {
-          setInitialRoute('Home');
+          setInitialRoute('Register');
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
         // 에러 발생 시 기본 라우트를 Register로 설정
-        setInitialRoute('Home');
+        setInitialRoute('Register');
       }
     };
 

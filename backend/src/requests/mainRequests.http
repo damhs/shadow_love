@@ -2,7 +2,7 @@ POST http://localhost:3001/main/createQuestion/ HTTP/1.1
 Content-Type: application/json
 
 {
-  "questionText": "What is your favorite color?"
+  "questionText": "오늘 어떤 일이 당신을 기분 좋게 만들었나요?"
 }
 
 ###

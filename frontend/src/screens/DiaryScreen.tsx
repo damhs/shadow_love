@@ -28,11 +28,12 @@ const DiaryScreen = ({navigation}) => {
         axios.get(`${baseUrl}/main/getRandomQuestion`),
         axios.get(`${baseUrl}/main/getRandomQuestion`),
       ]);
-      console.log('questions:', questions);
       
       const questionIDs = questions.map(res => res.data.questionID);
+      console.log('questionIDs:', questionIDs);
       setSelectedQuestionIDs(questionIDs);
       const questionTexts = questions.map(res => res.data.questionText);
+      console.log('questionTexts:', questionTexts);
       setSelectedQuestionTexts(questionTexts);
     } catch (error) {
       console.error('Error fetching random questions:', error);
@@ -53,12 +54,19 @@ const DiaryScreen = ({navigation}) => {
 
     try {
       const deviceID = await DeviceInfo.getUniqueId();
-      const coupleID = await axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } });
+      console.log('DeviceID:', deviceID);
+      const coupleResponse = await axios.get(
+        `${baseUrl}/auth/getCouple`,
+        {
+          params: { ID: deviceID },
+        },
+      );
+      console.log('coupleResponse:', coupleResponse.data);
       // Step 1: Save Diary
       const diaryResponse = await axios.post(
         `${baseUrl}/main/createDiary`,
         {
-          ID: deviceID, // Replace with dynamic user ID
+          ID: deviceID,
           questionID1: selectedQuestionIDs[0],
           answerText1: answers[0],
           questionID2: selectedQuestionIDs[1],
@@ -67,24 +75,23 @@ const DiaryScreen = ({navigation}) => {
           answerText3: answers[2],
         },
       );
-
       console.log('diaryResponse:', diaryResponse.data);
-
-      const diaryID = diaryResponse.data;
 
       // Step 2: Create Emotion
       const emotionResponse = await axios.post(
         `${baseUrl}/main/createEmotion`,
         {
-          ID: deviceID, // Replace with dynamic user ID
+          ID: deviceID,
         },
       );
 
       console.log('emotionResponse:', emotionResponse.data);
 
-      const emotionID = emotionResponse.data;
-
       // Step 3: Check Couple's Emotion
+      console.log('coupleResponse:', coupleResponse.data);
+      const coupleID = coupleResponse.data;
+      console.log('coupleID:', coupleID);
+      
       const coupleEmotionResponse = await axios.get(
         `${baseUrl}/main/getEmotion`,
         {
@@ -92,7 +99,9 @@ const DiaryScreen = ({navigation}) => {
         },
       );
 
-      if (!coupleEmotionResponse.data) {
+      console.log('coupleEmotionResponse:', coupleEmotionResponse.data);
+
+      if (coupleEmotionResponse.data.length === 0) {
         Alert.alert(
           'Waiting for Partner',
           'Your partner has not completed their diary yet. Please wait for them.',
@@ -111,7 +120,7 @@ const DiaryScreen = ({navigation}) => {
         `${baseUrl}/main/createArtwork`,
         {
           ID1: deviceID, // Replace with dynamic user ID
-          ID2: coupleID, // Replace with dynamic partner ID
+          ID2: coupleResponse, // Replace with dynamic partner ID
         },
       );
 

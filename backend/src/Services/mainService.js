@@ -39,11 +39,11 @@ const getRandomQuestion = async () => {
 
 const getQuestion = async (questionID) => {
   try {
-    const [question] = await pool.query(
+    const questionText = await pool.query(
       "SELECT questionText FROM Question WHERE questionID = UUID_TO_BIN(?, 1)",
       [questionID]
     );
-    return question[0].questionText;
+    return questionText;
   } catch (error) {
     console.error("Error getting question: ", error);
   }
@@ -84,7 +84,7 @@ const createDiary = async (
 const getDiary = async (ID, date) => {
   try {
     const [diary] = await pool.query(
-      "SELECT BIN_TO_UUID(diaryID) AS diaryID, ID, BIN_TO_UUID(questionID1) AS questionID1, answerText1, BIN_TO_UUID(questionID2) AS questionID2, answerText2, BIN_TO_UUID(questionID3) AS questionID3, answerText3 FROM Diary WHERE ID = UUID_TO_BIN(?, 1) AND date = ?",
+      "SELECT BIN_TO_UUID(diaryID) AS diaryID, ID, BIN_TO_UUID(questionID1) AS questionID1, answerText1, BIN_TO_UUID(questionID2) AS questionID2, answerText2, BIN_TO_UUID(questionID3) AS questionID3, answerText3 FROM Diary WHERE ID = ? AND date = ?",
       [ID, date]
     );
     return diary;
@@ -96,8 +96,10 @@ const getDiary = async (ID, date) => {
 const createEmotion = async (ID, color) => {
   try {
     const emotionID = uuid();
-    const diary = await getDiary(ID);
-    const [diaryID] = diary;
+    const date = getDate();
+    const diary = await getDiary(ID, date);
+    const diaryID = diary[0].diaryID;
+    console.log('diaryID:', diaryID);
     const formattedDate = getDate();
     await pool.query(
       "INSERT INTO Emotion (emotionID, diaryID, ID, color, date) VALUES (UUID_TO_BIN(?, 1), UUID_TO_BIN(?, 1), ?, ?, ?)",
@@ -109,12 +111,14 @@ const createEmotion = async (ID, color) => {
   }
 };
 
-const getEmotion = async (ID, date) => {
+const getEmotion = async (ID) => {
   try {
-    const [emotioin] = await pool.query(
-      "SELECT BIN_TO_UUID(emotionID) AS emotionID, ID, BIN_TO_UUID(diaryID), color, date FROM Diary WHERE ID = UUID_TO_BIN(?, 1) AND date = ?",
+    const date = getDate();
+    const [emotion] = await pool.query(
+      "SELECT BIN_TO_UUID(emotionID) AS emotionID, ID, BIN_TO_UUID(diaryID), color, date FROM Emotion WHERE ID = ? AND date = ?",
       [ID, date]
     );
+    return emotion;
   } catch (error) {
     console.error("Error getting emotion: ", error);
   }
