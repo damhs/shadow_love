@@ -21,10 +21,44 @@ const openai = new Openai.OpenAI({ apikey: process.env.OPENAI_API_KEY });
 
 const mainRouter = express.Router();
 
+async function useGPT(prompt) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that outputs HEX color codes for emotions." },
+        { role: "user", content: prompt },
+      ],
+      max_tokens: 100,
+    });
+    return response["choices"][0]["message"]["content"];
+  } catch (error) {
+    console.error("Error using GPT: ", error);
+  }
+}
+
+async function useDallE(prompt) {
+  try {
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: prompt,
+      size: "1024x1024",
+      quality: "standard",
+      n: 1,
+    });
+    return response.data[0].url;
+  } catch (error) {
+    console.error("Error using DALL-E: ", error);
+  }
+}
+
 async function getEmotionColorFromDiary(ID) {
-  // DALL-E를 통한 감정 생성 요청
-  const diary = await getDiary(ID);
+  // GPT를 통한 감정 색상 생성 요청
+  const date = new Date().toISOString().split("T")[0];
+  const diary = await getDiary(ID, date);
   const [
+    diaryID,
+    _ID,
     questionID1,
     answerText1,
     questionID2,
@@ -36,37 +70,50 @@ async function getEmotionColorFromDiary(ID) {
   const questionText2 = await getQuestion(questionID2);
   const questionText3 = await getQuestion(questionID3);
 
-  const dalleResponse = await axios.post(
-    "https://api.openai.com/v1/artworks/generations",
-    {
-      prompt: `Create a color that represents the emotions described: "${answerText1}, ${answerText2}, ${answerText3}"`,
-      n: 1,
-      size: "1024x1024",
-    },
-    {
-      headers: { Authorization: key },
-    }
-  );
-
-  const emotionColor = dalleResponse.data.data[0].hex_color; // DALL-E가 생성한 색상
+  const prompt = `Based on the following questions and answers, suggest a HEX color code that represents the overall emotion conveyed in the responses:\n\nQuestion 1:${questionText1}\nAnswer 1: ${answerText1}\nQuestion 2: ${questionText2}\nAnswer 2: ${answerText2}\nQuestion 3: ${questionText3}\nAnswer 3: ${answerText3}\n\nProvide the result in this format: #XXXXXX`;
+  const emotionColor = await useGPT(prompt);
   return emotionColor;
 }
 
-async function getArtworkFromColor(color1, color2) {
+async function getArtworkFromCouple(ID1, ID2) {
   // DALL-E를 통한 작품 생성 요청
-  const dalleResponse = await axios.post(
-    "https://api.openai.com/v1/images/generations",
-    {
-      prompt: `Create an artwork that combines the colors: "${color1}, ${color2}"`,
-      n: 1,
-      size: "1024x1024",
-    },
-    {
-      headers: { Authorization: key },
-    }
-  );
+  const date = new Date().toISOString().split("T")[0];
+  const diary1 = await getDiary(ID1, date);
+  const [
+    diaryID1,
+    _ID1,
+    questionID11,
+    answerText11,
+    questionID12,
+    answerText12,
+    questionID13,
+    answerText13,
+  ] = diary1;
+  const questionText11 = await getQuestion(questionID11);
+  const questionText12 = await getQuestion(questionID12);
+  const questionText13 = await getQuestion(questionID13);
+  const color1 = await getColor(ID1);
 
-  const artworkUrl = dalleResponse.data.data[0].url;
+  const diary2 = await getDiary(ID1, date);
+  const [
+    diaryID2,
+    _ID2,
+    questionID21,
+    answerText21,
+    questionID22,
+    answerText22,
+    questionID23,
+    answerText23,
+  ] = diary1;
+  const questionText21 = await getQuestion(questionID21);
+  const questionText22 = await getQuestion(questionID22);
+  const questionText23 = await getQuestion(questionID23);
+  const color2 = await getColor(ID2);
+
+  const prompt = `Based on the following questions, answers, and color of 2 users, create an artwork that represents the emotions conveyed in the responses:\n\nUser 1:\nQuestion 1:${questionText11}\nAnswer 1: ${answerText11}\nQuestion 2: ${questionText12}\nAnswer 2: ${answerText12}\nQuestion 3: ${questionText13}\nAnswer 3: ${answerText13}\nColor: ${color1}\n\nUser 2:\nQuestion 1:${questionText21}\nAnswer 1: ${answerText21}\nQuestion 2: ${questionText22}\nAnswer 2: ${answerText22}\nQuestion 3: ${questionText23}\nAnswer 3: ${answerText23}\nColor: ${color2}\n\n
+Please use only the colors I provided as much as possible.`;
+  
+  const artworkUrl = await useDallE(prompt);
 
   // 이미지 다운로드 및 저장
   const artworkPath = path.join(__dirname, "artworks", `${artworkID}.png`);

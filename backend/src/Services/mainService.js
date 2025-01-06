@@ -84,7 +84,7 @@ const createDiary = async (
 const getDiary = async (ID, date) => {
   try {
     const [diary] = await pool.query(
-      "SELECT BIN_TO_UUID(diaryID) AS diaryID, ID, BIN_TO_UUID(questionID1) AS questionID1, answerText1, BIN_TO_UUID(questionID2) AS questionID2, answerText2, BIN_TO_UUID(questionID3) AS questionID3, answerText3, date FROM Diary WHERE ID = UUID_TO_BIN(?, 1) AND date = ?",
+      "SELECT BIN_TO_UUID(diaryID) AS diaryID, ID, BIN_TO_UUID(questionID1) AS questionID1, answerText1, BIN_TO_UUID(questionID2) AS questionID2, answerText2, BIN_TO_UUID(questionID3) AS questionID3, answerText3 FROM Diary WHERE ID = UUID_TO_BIN(?, 1) AND date = ?",
       [ID, date]
     );
     return diary;

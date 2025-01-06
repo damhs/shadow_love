@@ -1,0 +1,15 @@
+POST http://localhost:3001/main/openai-dalle HTTP/1.1
+Content-Type: application/json
+
+{
+  "prompt": "A painting of a beautiful sunset over a mountain landscape."
+}
+
+###
+
+POST http://localhost:3001/main/openai-gpt
+Content-Type: application/json
+
+{
+  "prompt": "Based on the following questions and answers, suggest a HEX color code that represents the overall emotion conveyed in the responses:\n\nQuestion 1: What made you happy today?\nAnswer 1: Spending time with my family and enjoying a beautiful sunset.\n\nQuestion 2: What was a challenge you faced today?\nAnswer 2: I struggled to complete an important work deadline.\n\nQuestion 3: What is something you are looking forward to?\nAnswer 3: I am excited about going on a vacation this weekend.\n\nProvide the result in this format: #XXXXXX"
+}
