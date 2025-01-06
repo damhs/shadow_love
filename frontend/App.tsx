@@ -9,6 +9,8 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
 import DiaryScreen from './src/screens/DiaryScreen';
+import SettingsScreen from './src/screens/SettingScreen';
+import ExploreScreen from './src/screens/ExploreScreen';
 
 const Stack = createStackNavigator();
 
@@ -43,12 +45,12 @@ const App = () => {
         if (coupleResponse.data["coupleID"]!=undefined) {
           setInitialRoute('Home');
         } else {
-          setInitialRoute('Register');
+          setInitialRoute('Home');
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
         // 에러 발생 시 기본 라우트를 Register로 설정
-        setInitialRoute('Register');
+        setInitialRoute('Home');
       }
     };
 
@@ -71,6 +73,8 @@ const App = () => {
         <Stack.Screen name="Calendar" component={CalendarScreen} />
         <Stack.Screen name="Diary" component={DiaryScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Setting" component={SettingsScreen} />
+        <Stack.Screen name="Explore" component={ExploreScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

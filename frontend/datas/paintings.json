@@ -1,18 +1,21 @@
 [
   {
     "image": "painting1",
+    "image_path": "painting1.webp",
     "title": "마지막 인사",
     "date": "2025-01-03",
     "color": "F64A4A"
   },
   {
     "image": "painting2",
+    "image_path": "painting2.webp",
     "title": "서로를 이해하는 과정",
     "date": "2025-01-04",
     "color": "6E0DF5"
   },
   {
     "image": "painting3",
+    "image_path": "painting3.webp",
     "title": "살아난 금상",
     "date": "2025-01-05",
     "color": "18FE28"

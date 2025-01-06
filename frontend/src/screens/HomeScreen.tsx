@@ -13,9 +13,9 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 // 이미지 매핑 객체
 const imageMapping = {
-  painting1: require('../assets/painting/그림1.webp'),
-  painting2: require('../assets/painting/그림2.webp'),
-  painting3: require('../assets/painting/그림3.webp'),
+  painting1: require('../assets/painting/painting1.webp'),
+  painting2: require('../assets/painting/painting2.webp'),
+  painting3: require('../assets/painting/painting3.webp'),
 };
 
 const HomeScreen = ({ navigation }) => {
@@ -26,7 +26,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleSettingsPress = () => {
-    Alert.alert('Settings', 'Settings button pressed!');
+    navigation.navigate('Setting');
   };
 
   const handleLeftArrowPress = () => {
@@ -50,7 +50,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleGridPress = () => {
-    Alert.alert('Grid', 'Opening the gallery...');
+    navigation.navigate('Explore');
   };
 
   const currentPainting = paintingsData[currentIndex]; // 현재 그림 정보 가져오기
