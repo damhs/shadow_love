@@ -4,7 +4,6 @@ const {
     createUser,
     getUser,
     getAllUserID,
-    getCouple,
     deleteUser,
     updateCouple,
 } = require('../Services/authService.js');
@@ -43,16 +42,6 @@ authRouter.get('/getUser', async (req, res) => {
       res.status(200).json(user);
   } catch (error) {
       res.status(500).json({ error: "Failed to get user" });
-  }
-});
-
-authRouter.get('/getCouple', async (req, res) => {
-  const { ID } = req.body;
-  try {
-      const coupleID = await getCouple(ID);
-      res.status(200).json(coupleID);
-  } catch (error) {
-      res.status(500).json({ error: "Failed to get couple" });
   }
 });
 
