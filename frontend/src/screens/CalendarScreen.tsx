@@ -5,38 +5,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
-  Modal,
-  Image,
   Alert,
+  Modal,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import paintingsData from '../../datas/paintings.json';
 
-const CalendarScreen = ({ navigation }) => {
+const CustomCalendarScreen = ({ navigation }) => {
   const [markedDates, setMarkedDates] = useState({});
-  const [selectedPainting, setSelectedPainting] = useState(null); // 선택된 그림
-  const [modalVisible, setModalVisible] = useState(false); // 상세보기 모달 표시 여부
+  const [selectedDate, setSelectedDate] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Helper: RGB 값을 기반으로 텍스트 색상 계산
-  const getTextColor = (hexColor) => {
-    const r = parseInt(hexColor.slice(0, 2), 16);
-    const g = parseInt(hexColor.slice(2, 4), 16);
-    const b = parseInt(hexColor.slice(4, 6), 16);
-    const brightness = (r + g + b) / (255 * 3);
-    return brightness > 0.5 ? '#000000' : '#FFFFFF';
-  };
-
-  // 이미지 매핑 객체
-  const imageMap = {
-    'painting1.webp': require('../assets/painting/painting1.webp'),
-    'painting2.webp': require('../assets/painting/painting2.webp'),
-    'painting3.webp': require('../assets/painting/painting3.webp'),
-  };
-
-  const getImagePath = (fileName) => imageMap[fileName] || null;
-
+  // Helper: 날짜 데이터 생성
   useEffect(() => {
-    // JSON 데이터를 기반으로 마킹된 날짜 생성
     const generateMarkedDates = () => {
       const marked = {};
       paintingsData.forEach((painting) => {
@@ -44,9 +25,12 @@ const CalendarScreen = ({ navigation }) => {
           customStyles: {
             container: {
               backgroundColor: `#${painting.color}`, // 날짜 배경색
+              borderRadius: 10, // 둥근 테두리
+              padding: 5, // 내부 여백
             },
             text: {
-              color: getTextColor(painting.color), // 날짜 텍스트 색상
+              color: 'white', // 텍스트 색상
+              fontWeight: 'bold', // 텍스트 굵기
             },
           },
         };
@@ -57,72 +41,67 @@ const CalendarScreen = ({ navigation }) => {
     generateMarkedDates();
   }, []);
 
-  // 날짜 선택 시 호출
+  // 날짜 선택 이벤트
   const handleDayPress = (day) => {
-    const selected = paintingsData.find(
+    const selectedPainting = paintingsData.find(
       (painting) => painting.date === day.dateString
     );
-    if (selected) {
-      setSelectedPainting(selected);
+    if (selectedPainting) {
+      setSelectedDate(day.dateString);
       setModalVisible(true); // 모달 표시
     } else {
-      Alert.alert('No Data', 'There is no painting for this date.');
+      Alert.alert('No Data', '선택한 날짜에는 그림 데이터가 없습니다.');
     }
   };
 
   return (
     <ImageBackground
-      source={require('../assets/img/background.png')}
+      source={require('../assets/img/calendarbackground.png')}
       style={styles.background}>
       <View style={styles.container}>
-        <Text style={styles.title}>Your Desk Calendar</Text>
+        <Text style={styles.title}>커스텀 캘린더</Text>
 
-        {/* 캘린더 */}
-        <View style={styles.calendarContainer}>
-          <Calendar
-            current={new Date().toISOString().split('T')[0]} // 현재 날짜로 설정
-            markedDates={markedDates} // JSON 데이터를 기반으로 마킹
-            markingType={'custom'} // 커스텀 마킹 사용
-            style={styles.calendar}
-            theme={{
-              backgroundColor: 'transparent',
-              calendarBackground: 'rgba(255, 255, 255, 0.9)',
-              textDayFontSize: 16,
-              textMonthFontSize: 20,
-              textDayHeaderFontSize: 14,
-              todayTextColor: 'gold',
-            }}
-            onDayPress={handleDayPress} // 날짜 선택 시 호출
-          />
-        </View>
+        <Calendar
+          current={new Date().toISOString().split('T')[0]} // 현재 날짜
+          markedDates={markedDates} // JSON 데이터를 기반으로 마킹
+          markingType="custom" // 커스텀 스타일 적용
+          onDayPress={handleDayPress} // 날짜 선택 이벤트
+          theme={{
+            calendarBackground: '#f0f4f8', // 캘린더 배경
+            todayTextColor: '#ff6347', // 오늘 텍스트 색상
+            textDayFontSize: 16,
+            textMonthFontSize: 20,
+            textDayHeaderFontSize: 14,
+            monthTextColor: '#007bff',
+            arrowColor: '#007bff',
+          }}
+          style={styles.calendar}
+        />
 
         {/* 뒤로 가기 버튼 */}
-        <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
-          <Text style={styles.buttonText}>Back to Home</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>돌아가기</Text>
         </TouchableOpacity>
 
-        {/* 상세보기 모달 */}
+        {/* 모달 */}
         <Modal
           visible={modalVisible}
-          animationType="slide"
           transparent={true}
+          animationType="fade"
           onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
-            {selectedPainting && (
-              <View style={styles.modalContent}>
-                <Image
-                  source={getImagePath(selectedPainting.image_path)} // 동적 이미지 로드
-                  style={styles.paintingImage}
-                />
-                <Text style={styles.paintingTitle}>{selectedPainting.title}</Text>
-                <Text style={styles.paintingDate}>{selectedPainting.date}</Text>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setModalVisible(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                {selectedDate}의 그림
+              </Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.closeButtonText}>닫기</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Modal>
       </View>
@@ -138,75 +117,52 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: 'white',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
-    marginBottom: 20,
-  },
-  calendarContainer: {
-    width: '90%',
-    height: 350,
-    borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: 'white',
-    elevation: 5,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   calendar: {
-    width: '100%',
     borderRadius: 10,
+    elevation: 3, // 그림자 효과
   },
-  button: {
+  backButton: {
     marginTop: 20,
+    alignSelf: 'center',
     backgroundColor: '#007bff',
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
   },
-  buttonText: {
+  backButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 10,
+    backgroundColor: '#fff',
     padding: 20,
-    alignItems: 'center',
+    borderRadius: 10,
     width: '80%',
+    alignItems: 'center',
   },
-  paintingImage: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'contain',
-    marginBottom: 10,
-  },
-  paintingTitle: {
-    fontSize: 20,
+  modalTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  paintingDate: {
-    fontSize: 16,
-    color: 'gray',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   closeButton: {
     backgroundColor: '#007bff',
     padding: 10,
     borderRadius: 5,
+    marginTop: 10,
   },
   closeButtonText: {
     color: 'white',
@@ -214,4 +170,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CalendarScreen;
+export default CustomCalendarScreen;
+AV

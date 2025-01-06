@@ -39,12 +39,12 @@ const App = () => {
         if (coupleResponse.data[0]["coupleID"]!== null) {
           setInitialRoute('Home');
         } else {
-          setInitialRoute('Register');
+          setInitialRoute('Home');
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
         // 에러 발생 시 기본 라우트를 Register로 설정
-        setInitialRoute('Register');
+        setInitialRoute('Home');
       }
     };
 

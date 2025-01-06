@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
+  Dimensions,
   TouchableOpacity,
   ImageBackground,
   Image,
@@ -17,6 +18,8 @@ const imageMapping = {
   painting2: require('../assets/painting/painting2.webp'),
   painting3: require('../assets/painting/painting3.webp'),
 };
+
+const { width, height } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(0); // 현재 이미지 인덱스
@@ -121,8 +124,8 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginTop: 20,
+    paddingHorizontal: width * 0.05, // 화면 너비의 5%
+    marginTop: height * 0.02, // 화면 높이의 2%
   },
   imageContainer: {
     flex: 1,
@@ -131,53 +134,50 @@ const styles = StyleSheet.create({
     marginBottom: -30,
   },
   image: {
-    width: 275, // 이미지 가로 크기
-    height: 345, // 이미지 세로 크기
-    resizeMode: 'stretch',
+    width: width * 0.53, // 화면 너비의 70%
+    height: height * 0.315, // 화면 높이의 40%
+    resizeMode: 'Stretch', // 비율 유지
+    marginTop: width*0.11,
   },
   title: {
-    fontSize: 20,
+    fontSize: width * 0.05, // 화면 너비의 5%
     fontWeight: 'bold',
-    marginTop: 30,
+    marginTop: height * 0.03, // 화면 높이의 3%
     color: '#fff',
+    marginTop: height*0.07,
   },
   date: {
-    fontSize: 16,
+    fontSize: width * 0.04, // 화면 너비의 4%
     color: '#aaa',
-    marginTop: 5,
+    marginTop: height * 0.01, // 화면 높이의 1%
   },
   arrowsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     position: 'absolute',
     top: '50%',
-    left: 20,
-    right: 20,
+    left: width * 0.05, // 화면 너비의 5%
+    right: width * 0.05, // 화면 너비의 5%
   },
   arrowButton: {
-    padding: 10,
+    padding: width * 0.03, // 화면 너비의 3%
   },
   floatingButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: width * 0.15, // 화면 너비의 15%
+    height: width * 0.15, // 화면 너비의 15% (정사각형)
+    borderRadius: (width * 0.15) / 2, // 버튼을 원형으로 만들기
+    backgroundColor: 'rgba(44, 44, 44, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    backgroundColor: 'rgba(44, 44, 44, 0.8)',
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
   },
   leftButton: {
-    bottom: 20,
-    left: 20,
+    bottom: height * 0.05, // 화면 높이의 5%
+    left: width * 0.05, // 화면 너비의 5%
   },
   rightButton: {
-    bottom: 20,
-    right: 20,
+    bottom: height * 0.05, // 화면 높이의 5%
+    right: width * 0.05, // 화면 너비의 5%
   },
 });
 
