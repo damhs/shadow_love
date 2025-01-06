@@ -1,9 +1,3 @@
-/*
-추가하고 싶은 부분:
-Couple마다 고유 ID가 있어서
-Calendar 화면에서 해당 ID에 맞는 커플의 달력을 보여줌
-이유 -> 다른 사람의 미술관에 들어갔을 때 해당 커플의 달력을 보여주기 위함.
-*/
 import React, { useState, useEffect } from 'react';
 import {
   View,

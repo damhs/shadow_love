@@ -50,7 +50,7 @@ const RegisterAsCoupleScreen = ({ navigation }) => {
 
       if (coupleID) {
         Alert.alert("Success", "You are now connected as a couple!", [
-          { text: "OK", onPress: () => navigation.navigate("Home") },
+          { text: "OK", onPress: () => navigation.navigate("Transition") },
         ]);
       } else {
         Alert.alert("Error", "Failed to connect.");

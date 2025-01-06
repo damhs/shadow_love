@@ -11,6 +11,7 @@ import CalendarScreen from './src/screens/CalendarScreen';
 import DiaryScreen from './src/screens/DiaryScreen';
 import SettingsScreen from './src/screens/SettingScreen';
 import ExploreScreen from './src/screens/ExploreScreen';
+import RegisterToHomeScreen from './src/screens/RegisterToHomeScreen';
 
 const Stack = createStackNavigator();
 
@@ -68,6 +69,7 @@ const App = () => {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Setting" component={SettingsScreen} />
         <Stack.Screen name="Explore" component={ExploreScreen} />
+        <Stack.Screen name="Transition" component={RegisterToHomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
