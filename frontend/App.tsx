@@ -21,23 +21,16 @@ const App = () => {
     const checkDeviceRegistration = async () => {
       try {
         const deviceID = await DeviceInfo.getUniqueId();
-        console.log('Device ID:', deviceID);
 
         // 병렬 요청으로 데이터 가져오기
         const [userResponse, coupleResponse] = await Promise.all([
           axios.get(`${baseUrl}/auth/getUser`, { params: { ID: deviceID } }),
           axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } }),
         ]);
-        console.log('User data:', userResponse.data);
-        console.log('Couple data:', coupleResponse.data);
 
         if (userResponse.data.length === 0) {
-          console.log('Creating user...');
           await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
-          console.log('User created');
         }
-
-        console.log(coupleResponse.data["coupleID"]);
 
         // 데이터 확인 후 초기 라우트 설정
         if (coupleResponse.data["coupleID"]!=undefined) {

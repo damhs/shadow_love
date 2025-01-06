@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ImageBackground } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ImageBackground, Alert } from "react-native";
 import DeviceInfo from 'react-native-device-info';
 import axios from "axios";
 import config from "../config";
@@ -8,7 +8,7 @@ const { width } = Dimensions.get("window");
 
 const baseUrl = config.backendUrl;
 
-const RegisterAsCoupleScreen = () => {
+const RegisterAsCoupleScreen = ({ navigation }) => {
   const [ownCode, setOwnCode] = useState("");
   const [partnerCode, setPartnerCode] = useState("");
 
@@ -28,6 +28,39 @@ const RegisterAsCoupleScreen = () => {
     fetchOwnCode();
   }, []);
 
+  const handleConnect = async () => {
+    if (!partnerCode) {
+      Alert.alert("Error", "Please enter your partner's code.");
+      return;
+    }
+
+    try {
+      const deviceID = await DeviceInfo.getUniqueId();
+      const user = await axios.get(`${baseUrl}/auth/getUser`, { params: { ID: deviceID } });
+      
+      if (user.data.length === 0) {
+        Alert.alert("Error", "There is no user data.");
+      }
+
+      console.log(partnerCode);
+
+      const coupleID = await axios.patch(`${baseUrl}/auth/updateCouple`, { ID: deviceID, coupleRegisterID: partnerCode });
+
+      console.log(coupleID);
+
+      if (coupleID) {
+        Alert.alert("Success", "You are now connected as a couple!", [
+          { text: "OK", onPress: () => navigation.navigate("Home") },
+        ]);
+      } else {
+        Alert.alert("Error", "Failed to connect.");
+      }
+    } catch (error) {
+      console.error("Error connecting with partner:", error);
+      Alert.alert("Error", "An error occurred. Please try again later.");
+    }
+  };
+
   return (
     <ImageBackground
       source={require("../assets/img/registerBackground.png")}
@@ -45,7 +78,7 @@ const RegisterAsCoupleScreen = () => {
           <Text style={styles.label}>Partner's Code</Text>
           <TextInput
             style={styles.doorInput}
-            placeholder="Enter Partner's Code"
+            placeholder="Enter"
             placeholderTextColor="#BFAF9F"
             value={partnerCode}
             onChangeText={setPartnerCode}
@@ -53,7 +86,7 @@ const RegisterAsCoupleScreen = () => {
         </View>
 
         <View style={styles.centerButtonContainer}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={handleConnect}>
             <Text style={styles.buttonText}>Connect</Text>
           </TouchableOpacity>
         </View>
@@ -63,6 +96,7 @@ const RegisterAsCoupleScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  // 기존 스타일 코드
   background: {
     flex: 1,
     resizeMode: "cover",
