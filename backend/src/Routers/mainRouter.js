@@ -171,7 +171,8 @@ mainRouter.post("/createDiary", async (req, res) => {
 });
 
 mainRouter.get("/getDiary", async (req, res) => {
-  const { ID, date } = req.query;
+  const { ID } = req.query;
+  const date = new Date().toISOString().split("T")[0];
   try {
     const diary = await getDiary(ID, date);
     res.status(200).json(diary);
@@ -184,6 +185,7 @@ mainRouter.post("/createEmotion", async (req, res) => {
   const { ID } = req.body;
   try {
     const color = await getEmotionColorFromDiary(ID);
+    console.log('color:', color);
     const emotionID = await createEmotion(ID, color);
     res.status(200).json(emotionID);
   } catch (error) {
@@ -195,8 +197,8 @@ mainRouter.get("/getEmotion", async (req, res) => {
   const { ID } = req.query;
   try {
     const emotion = await getEmotion(ID);
-    const emotionColor = emotion[0].color;
-    res.status(200).json(emotionColor);
+    // const emotionColor = emotion[0].color;
+    res.status(200).json(emotion);
   } catch (error) {
     res.status(500).json({ error: "Failed to get emotion color" });
   }

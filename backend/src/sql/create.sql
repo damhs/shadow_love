@@ -15,6 +15,7 @@ CREATE TABLE
     `ID1` VARCHAR(36) NOT NULL,
     `ID2` VARCHAR(36) NOT NULL,
     `coupleName` VARCHAR(50),
+    `isShowed` BOOLEAN DEFAULT FALSE, -- 공개 여부
     PRIMARY KEY (`coupleID`),
     FOREIGN KEY (`ID1`) REFERENCES `User` (`ID`) ON DELETE CASCADE,
     FOREIGN KEY (`ID2`) REFERENCES `User` (`ID`) ON DELETE CASCADE
@@ -64,19 +65,17 @@ CREATE TABLE
 CREATE TABLE
   `Artwork` (
     `artworkID` BINARY(16) NOT NULL, -- Optimized UUID storage
-    `ID1` VARCHAR(36) NOT NULL,
-    `ID2` VARCHAR(36) NOT NULL,
     `emotionID1` BINARY(16) NOT NULL,
     `emotionID2` BINARY(16) NOT NULL,
     `artworkPath` VARCHAR(255) NOT NULL, -- 서버에 이미지 저장 후 DB에 경로 저장
     `date` DATE, -- 날짜만 저장, 기본값은 오늘 날짜
     `title` VARCHAR(20);
     `description` VARCHAR(255); -- 작품 설명
+    `coupleID` BINARY(16) NOT NULL,
     PRIMARY KEY (`artworkID`),
-    FOREIGN KEY (`ID1`) REFERENCES `User` (`ID`) ON DELETE CASCADE,
-    FOREIGN KEY (`ID2`) REFERENCES `User` (`ID`) ON DELETE CASCADE,
     FOREIGN KEY (`emotionID1`) REFERENCES `Emotion` (`emotionID`) ON DELETE CASCADE,
-    FOREIGN KEY (`emotionID2`) REFERENCES `Emotion` (`emotionID`) ON DELETE CASCADE
+    FOREIGN KEY (`emotionID2`) REFERENCES `Emotion` (`emotionID`) ON DELETE CASCADE,
+    FOREIGN KEY (`coupleID`) REFERENCES `Couple` (`coupleID`) ON DELETE CASCADE
   );
 
 -- Trigger

@@ -64,7 +64,7 @@ authRouter.get('/getCouple', async (req, res) => {
   const { ID } = req.query;
   try {
       const coupleID = await getCouple(ID);
-      res.status(200).json(coupleID);
+      res.status(200).json(coupleID[0].coupleID);
   } catch (error) {
       res.status(500).json({ error: "Failed to get couple" });
   }
