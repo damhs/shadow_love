@@ -11,12 +11,13 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3001/auth/getUser/ HTTP/1.1
-Content-Type: application/json
+GET http://localhost:3001/auth/getUser?ID=3b52b204-bf91-4e5b-a48a-440245ce663f HTTP/1.1
 
-{
-    "ID": "3b52b204-bf91-4e5b-a48a-440245ce663f"
-}
+
+###
+
+GET http://localhost:3001/auth/getCoupleRegisterID?ID=3b52b204-bf91-4e5b-a48a-440245ce663f HTTP/1.1
+
 
 ###
 
