@@ -28,14 +28,19 @@ const App = () => {
           axios.get(`${baseUrl}/auth/getUser`, { params: { ID: deviceID } }),
           axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } }),
         ]);
+        console.log('User data:', userResponse.data);
+        console.log('Couple data:', coupleResponse.data);
 
-        if (!userResponse.data) {
-          axios.post('http://localhost:3001/auth/createUser', { deviceID });
+        if (userResponse.data.length === 0) {
+          console.log('Creating user...');
+          await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
+          console.log('User created');
         }
-        console.log('User created');
+
+        console.log(coupleResponse.data["coupleID"]);
 
         // 데이터 확인 후 초기 라우트 설정
-        if (coupleResponse.data) {
+        if (coupleResponse.data["coupleID"]!=undefined) {
           setInitialRoute('Home');
         } else {
           setInitialRoute('Register');
