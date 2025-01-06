@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,9 @@ import config from '../config';
 
 const baseUrl = config.backendUrl;
 
-const DiaryScreen = ({ navigation }) => {
-  const [selectedQuestions, setSelectedQuestions] = useState([]);
+const DiaryScreen = ({navigation}) => {
+  const [selectedQuestionIDs, setSelectedQuestionIDs] = useState([]);
+  const [selectedQuestionTexts, setSelectedQuestionTexts] = useState([]);
   const [answers, setAnswers] = useState(['', '', '']);
   const [isComplete, setIsComplete] = useState(false); // Completion status
 
@@ -28,9 +29,11 @@ const DiaryScreen = ({ navigation }) => {
         axios.get(`${baseUrl}/main/getRandomQuestion`),
       ]);
       console.log('questions:', questions);
-
-      const questionTexts = questions.map((res) => res.data.questionText);
-      setSelectedQuestions(questionTexts);
+      
+      const questionIDs = questions.map(res => res.data.questionID);
+      setSelectedQuestionIDs(questionIDs);
+      const questionTexts = questions.map(res => res.data.questionText);
+      setSelectedQuestionTexts(questionTexts);
     } catch (error) {
       console.error('Error fetching random questions:', error);
       Alert.alert('Error', 'Failed to fetch questions. Please try again.');
@@ -38,55 +41,92 @@ const DiaryScreen = ({ navigation }) => {
   };
 
   const handleComplete = async () => {
-    const allFilled = answers.every((answer) => answer.trim().length > 0);
+    const allFilled = answers.every(answer => answer.trim().length > 0);
 
     if (!allFilled) {
-      Alert.alert('Incomplete Answers', 'Please fill out all answers before completing the diary.');
+      Alert.alert(
+        'Incomplete Answers',
+        'Please fill out all answers before completing the diary.',
+      );
       return;
     }
 
     try {
+      const deviceID = await DeviceInfo.getUniqueId();
+      const coupleID = await axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } });
       // Step 1: Save Diary
-      const diaryResponse = await axios.post('http://<YOUR_SERVER>/createDiary', {
-        ID: '<USER_ID>', // Replace with dynamic user ID
-        questionID1: selectedQuestions[0],
-        answerText1: answers[0],
-        questionID2: selectedQuestions[1],
-        answerText2: answers[1],
-        questionID3: selectedQuestions[2],
-        answerText3: answers[2],
-      });
+      const diaryResponse = await axios.post(
+        `${baseUrl}/main/createDiary`,
+        {
+          ID: deviceID, // Replace with dynamic user ID
+          questionID1: selectedQuestionIDs[0],
+          answerText1: answers[0],
+          questionID2: selectedQuestionIDs[1],
+          answerText2: answers[1],
+          questionID3: selectedQuestionIDs[2],
+          answerText3: answers[2],
+        },
+      );
+
+      console.log('diaryResponse:', diaryResponse.data);
 
       const diaryID = diaryResponse.data;
 
       // Step 2: Create Emotion
-      const emotionResponse = await axios.post('http://<YOUR_SERVER>/createEmotion', {
-        ID: '<USER_ID>', // Replace with dynamic user ID
-      });
+      const emotionResponse = await axios.post(
+        `${baseUrl}/main/createEmotion`,
+        {
+          ID: deviceID, // Replace with dynamic user ID
+        },
+      );
+
+      console.log('emotionResponse:', emotionResponse.data);
 
       const emotionID = emotionResponse.data;
 
       // Step 3: Check Couple's Emotion
-      const coupleEmotionResponse = await axios.get('http://<YOUR_SERVER>/getEmotion', {
-        params: { ID: '<PARTNER_ID>' }, // Replace with dynamic partner ID
-      });
+      const coupleEmotionResponse = await axios.get(
+        `${baseUrl}/main/getEmotion`,
+        {
+          params: {ID: coupleID}, // Replace with dynamic partner ID
+        },
+      );
 
-      // Step 3-1: Wait for Partner's Emotion
       if (!coupleEmotionResponse.data) {
-        Alert.alert('Waiting for Partner', 'Please wait for your partner to complete their diary.');
+        Alert.alert(
+          'Waiting for Partner',
+          'Your partner has not completed their diary yet. Please wait for them.',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('Home'), // Navigate to home screen
+            },
+          ],
+        );
         return;
-      } else {}
+      }
 
-      // Step 3-2: Generate Artwork
-      const artworkResponse = await axios.post('http://<YOUR_SERVER>/createArtwork', {
-        ID1: '<USER_ID>', // Replace with dynamic user ID
-        ID2: '<PARTNER_ID>', // Replace with dynamic partner ID
-      });
+      // Step 4: Generate Artwork
+      const artworkResponse = await axios.post(
+        `${baseUrl}/main/createArtwork`,
+        {
+          ID1: deviceID, // Replace with dynamic user ID
+          ID2: coupleID, // Replace with dynamic partner ID
+        },
+      );
+
+      console.log('artworkResponse:', artworkResponse.data);
 
       const artworkID = artworkResponse.data;
 
-      Alert.alert('Diary Completed', 'Your diary, emotion, and artwork have been saved!');
+      Alert.alert(
+        'Diary Completed',
+        'Your diary, emotion, and artwork have been saved!',
+      );
       setIsComplete(true);
+
+      // Optionally navigate to a screen to view the artwork
+      // navigation.navigate('ArtworkScreen', {artworkID});
     } catch (error) {
       console.error('Error completing diary:', error);
       Alert.alert('Error', 'Failed to complete the diary. Please try again.');
@@ -104,7 +144,10 @@ const DiaryScreen = ({ navigation }) => {
         updatedAnswers[index] = text;
         setAnswers(updatedAnswers);
       } else {
-        Alert.alert('Limit Exceeded', 'You can only enter up to 200 characters.');
+        Alert.alert(
+          'Limit Exceeded',
+          'You can only enter up to 200 characters.',
+        );
       }
     }
   };
@@ -116,7 +159,7 @@ const DiaryScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Today's Diary Questions</Text>
 
-        {selectedQuestions.map((question, index) => (
+        {selectedQuestionTexts.map((question, index) => (
           <View key={index} style={styles.questionContainer}>
             <Text style={styles.question}>
               {index + 1}. {question}
@@ -124,18 +167,16 @@ const DiaryScreen = ({ navigation }) => {
             <TextInput
               style={[
                 styles.input,
-                isComplete && { backgroundColor: '#e9ecef', color: '#6c757d' },
+                isComplete && {backgroundColor: '#e9ecef', color: '#6c757d'},
               ]}
               placeholder="Write your answer here..."
               value={answers[index]}
-              onChangeText={(text) => handleAnswerChange(index, text)}
+              onChangeText={text => handleAnswerChange(index, text)}
               multiline={true}
               maxLength={200}
               editable={!isComplete}
             />
-            <Text style={styles.charCount}>
-              {answers[index].length}/200
-            </Text>
+            <Text style={styles.charCount}>{answers[index].length}/200</Text>
           </View>
         ))}
 
@@ -193,7 +234,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, // 테두리 추가
     borderColor: '#ddd', // 테두리 색상
     shadowColor: '#000', // 그림자 효과
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 5, // Android 그림자 효과
