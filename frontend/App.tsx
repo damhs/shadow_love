@@ -33,14 +33,14 @@ const App = () => {
         ]);
 
         console.log('userResponse:', userResponse.data);
-        console.log('coupleResponse:', coupleResponse.data);
+        console.log('coupleResponse:', coupleResponse.data[0].coupleID);
 
         if (userResponse.data.length === 0) {
           await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
         }
-
+//
         // 데이터 확인 후 초기 라우트 설정
-        if (coupleResponse.data !== null) {
+        if (coupleResponse.data[0].coupleID !== null) {
           setInitialRoute('Home');
         } else {
           setInitialRoute('Register');
