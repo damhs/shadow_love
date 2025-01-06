@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ActivityIndicator, View } from 'react-native';
+import { BackgroundProvider } from './src/screens/BackgroundContext'; // BackgroundProvider 가져오기
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
 import config from './src/config';
@@ -14,7 +15,6 @@ import ExploreScreen from './src/screens/ExploreScreen';
 import RegisterToHomeScreen from './src/screens/RegisterToHomeScreen';
 
 const Stack = createStackNavigator();
-
 const baseUrl = config.backendUrl;
 
 const App = () => {
@@ -38,17 +38,17 @@ const App = () => {
         if (userResponse.data.length === 0) {
           await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
         }
-//
+
         // 데이터 확인 후 초기 라우트 설정
         if (coupleResponse.data[0].coupleID !== null) {
           setInitialRoute('Home');
         } else {
-          setInitialRoute('Register');
+          setInitialRoute('Home');
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
-        // 에러 발생 시 기본 라우트를 Register로 설정
-        setInitialRoute('Register');
+        // 에러 발생 시 기본 라우트를 Home으로 설정
+        setInitialRoute('Home');
       }
     };
 
@@ -65,17 +65,20 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Calendar" component={CalendarScreen} />
-        <Stack.Screen name="Diary" component={DiaryScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Setting" component={SettingsScreen} />
-        <Stack.Screen name="Explore" component={ExploreScreen} />
-        <Stack.Screen name="Transition" component={RegisterToHomeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <BackgroundProvider>
+      {/* BackgroundProvider로 감싸기 */}
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Calendar" component={CalendarScreen} />
+          <Stack.Screen name="Diary" component={DiaryScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Setting" component={SettingsScreen} />
+          <Stack.Screen name="Explore" component={ExploreScreen} />
+          <Stack.Screen name="Transition" component={RegisterToHomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </BackgroundProvider>
   );
 };
 

@@ -3,20 +3,55 @@ import {
   View,
   Text,
   StyleSheet,
+  Dimensions,
   TouchableOpacity,
   ImageBackground,
-  Alert,
   Modal,
+  Image,
+  Alert,
 } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import paintingsData from '../../datas/paintings.json';
 
-const CustomCalendarScreen = ({ navigation }) => {
+const imageMapping = {
+  painting1: require('../assets/painting/painting1.webp'),
+  painting2: require('../assets/painting/painting2.webp'),
+  painting3: require('../assets/painting/painting3.webp'),
+};
+
+const { width, height } = Dimensions.get('window');
+
+// Locale 설정 (한국어)
+LocaleConfig.locales['ko'] = {
+  monthNames: [
+    '1월', '2월', '3월', '4월', '5월', '6월',
+    '7월', '8월', '9월', '10월', '11월', '12월',
+  ],
+  monthNamesShort: [
+    '1월', '2월', '3월', '4월', '5월', '6월',
+    '7월', '8월', '9월', '10월', '11월', '12월',
+  ],
+  dayNames: [
+    '일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일',
+  ],
+  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+  today: '오늘',
+};
+LocaleConfig.defaultLocale = 'ko';
+
+const CalendarScreen = ({ navigation }) => {
   const [markedDates, setMarkedDates] = useState({});
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedPainting, setSelectedPainting] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Helper: 날짜 데이터 생성
+  const getTextColor = (hexColor) => {
+    const r = parseInt(hexColor.slice(0, 2), 16);
+    const g = parseInt(hexColor.slice(2, 4), 16);
+    const b = parseInt(hexColor.slice(4, 6), 16);
+    const brightness = (r + g + b) / (255 * 3);
+    return brightness > 0.5 ? '#000000' : '#FFFFFF';
+  };
+
   useEffect(() => {
     const generateMarkedDates = () => {
       const marked = {};
@@ -24,13 +59,16 @@ const CustomCalendarScreen = ({ navigation }) => {
         marked[painting.date] = {
           customStyles: {
             container: {
-              backgroundColor: `#${painting.color}`, // 날짜 배경색
-              borderRadius: 10, // 둥근 테두리
-              padding: 5, // 내부 여백
+              backgroundColor: `#${painting.color}`,
+              borderRadius: 8,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 3,
             },
             text: {
-              color: 'white', // 텍스트 색상
-              fontWeight: 'bold', // 텍스트 굵기
+              color: getTextColor(painting.color),
+              fontWeight: 'bold',
             },
           },
         };
@@ -41,66 +79,89 @@ const CustomCalendarScreen = ({ navigation }) => {
     generateMarkedDates();
   }, []);
 
-  // 날짜 선택 이벤트
   const handleDayPress = (day) => {
-    const selectedPainting = paintingsData.find(
+    const selected = paintingsData.find(
       (painting) => painting.date === day.dateString
     );
-    if (selectedPainting) {
-      setSelectedDate(day.dateString);
-      setModalVisible(true); // 모달 표시
+    if (selected) {
+      setSelectedPainting(selected);
+      setModalVisible(true);
     } else {
-      Alert.alert('No Data', '선택한 날짜에는 그림 데이터가 없습니다.');
+      Alert.alert('데이터 없음', '선택한 날짜에는 그림 데이터가 없습니다.');
     }
+  };
+
+  const renderCustomHeader = (date) => {
+    const year = date.getFullYear();
+    const month = LocaleConfig.locales['ko'].monthNames[date.getMonth()];
+    return (
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>{`${year}년 ${month}`}</Text>
+      </View>
+    );
   };
 
   return (
     <ImageBackground
-      source={require('../assets/img/calendarbackground.png')}
+      source={require('../assets/img/calendarbackground.png')} // 예술적인 배경 이미지
       style={styles.background}>
       <View style={styles.container}>
-        <Text style={styles.title}>커스텀 캘린더</Text>
+        <Text style={styles.title}>미술 기록</Text>
 
         <Calendar
-          current={new Date().toISOString().split('T')[0]} // 현재 날짜
-          markedDates={markedDates} // JSON 데이터를 기반으로 마킹
-          markingType="custom" // 커스텀 스타일 적용
-          onDayPress={handleDayPress} // 날짜 선택 이벤트
+          current={new Date().toISOString().split('T')[0]}
+          markedDates={markedDates}
+          markingType="custom"
+          onDayPress={handleDayPress}
+          renderHeader={(date) => renderCustomHeader(new Date(date))}
           theme={{
-            calendarBackground: '#f0f4f8', // 캘린더 배경
-            todayTextColor: '#ff6347', // 오늘 텍스트 색상
+            calendarBackground: 'rgba(255, 255, 255, 0.9)',
             textDayFontSize: 16,
-            textMonthFontSize: 20,
+            textMonthFontSize: 24,
             textDayHeaderFontSize: 14,
-            monthTextColor: '#007bff',
-            arrowColor: '#007bff',
+            todayTextColor: '#FF8C42',
+            arrowColor: '#A78B71', // 부드러운 골드 톤
+            monthTextColor: '#6B4E3D', // 따뜻한 브라운 톤
+            textDayStyle: {
+              lineHeight: 20,
+              textAlign: 'center',
+            },
           }}
           style={styles.calendar}
         />
 
-        {/* 뒤로 가기 버튼 */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>돌아가기</Text>
         </TouchableOpacity>
 
-        {/* 모달 */}
         <Modal
           visible={modalVisible}
           transparent={true}
-          animationType="fade"
+          animationType="slide"
           onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>
-                {selectedDate}의 그림
-              </Text>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeButtonText}>닫기</Text>
-              </TouchableOpacity>
+              {selectedPainting && (
+                <>
+                  <Image
+                    source={imageMapping[selectedPainting.image]}
+                    style={styles.paintingImage}
+                  />
+                  <Text style={styles.modalTitle}>
+                    {selectedPainting.title}
+                  </Text>
+                  <Text style={styles.modalDate}>
+                    {selectedPainting.date}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}>
+                    <Text style={styles.closeButtonText}>닫기</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </View>
         </Modal>
@@ -116,23 +177,35 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
   },
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#6B4E3D',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
+    fontFamily: 'serif',
+    marginTop: height * 0.15,
+  },
+  headerContainer: {
+    alignItems: 'center',
+    padding: 10,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#6B4E3D',
   },
   calendar: {
-    borderRadius: 10,
-    elevation: 3, // 그림자 효과
+    borderRadius: 15,
+    elevation: 5,
+    paddingVertical: 10,
   },
   backButton: {
     marginTop: 20,
     alignSelf: 'center',
-    backgroundColor: '#007bff',
+    backgroundColor: '#6B4E3D',
     padding: 10,
     borderRadius: 5,
   },
@@ -144,25 +217,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     padding: 20,
-    borderRadius: 10,
-    width: '80%',
+    borderRadius: 15,
     alignItems: 'center',
+    width: '85%',
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  paintingImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
     marginBottom: 15,
   },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#6B4E3D',
+    marginBottom: 10,
+  },
+  modalDate: {
+    fontSize: 16,
+    color: '#5A5A5A',
+    marginBottom: 20,
+  },
   closeButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#6B4E3D',
     padding: 10,
     borderRadius: 5,
-    marginTop: 10,
   },
   closeButtonText: {
     color: 'white',
@@ -170,8 +254,4 @@ const styles = StyleSheet.create({
   },
 });
 
-<<<<<<< HEAD
-export default CustomCalendarScreen;
-=======
-export default CustomCalendarScreen;
->>>>>>> 1a3aaf4216937d5b5dd005f2e1f757a34f9fda02
+export default CalendarScreen;

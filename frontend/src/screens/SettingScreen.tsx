@@ -3,16 +3,32 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
-  Switch,
   Alert,
+  Switch,
+  TouchableOpacity,
 } from 'react-native';
+import { useBackground } from './BackgroundContext';
+import { Picker } from '@react-native-picker/picker';
+
+// 이미지 매핑 객체
+const backgroundMapping = {
+  'background.png': require('../assets/img/background.png'),
+  'background2.webp': require('../assets/img/background2.webp'),
+  'background3.webp': require('../assets/img/background3.webp'),
+};
 
 const SettingsScreen = ({ navigation }) => {
+  const { setBackground } = useBackground();
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
+  const [selectedBackground, setSelectedBackground] = useState('background.png');
   const [isGalleryPublic, setIsGalleryPublic] = useState(false);
+
+  const handleBackgroundChange = (selectedValue) => {
+    setSelectedBackground(selectedValue);
+    setBackground(backgroundMapping[selectedValue]); // 매핑된 이미지 사용
+    Alert.alert('배경이 변경되었습니다!');
+  };
 
   const handleClearCache = () => {
     Alert.alert(
@@ -41,16 +57,10 @@ const SettingsScreen = ({ navigation }) => {
       <ScrollView style={styles.scrollContainer}>
         <Text style={styles.title}>설정</Text>
 
-        {/* 테마 변경 */}
+        {/* 다크 모드 */}
         <View style={styles.settingItem}>
           <Text style={styles.settingText}>다크 모드</Text>
           <Switch value={isDarkMode} onValueChange={setIsDarkMode} />
-        </View>
-
-        {/* 알림 설정 */}
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>알림 활성화</Text>
-          <Switch value={isNotificationsEnabled} onValueChange={setIsNotificationsEnabled} />
         </View>
 
         {/* 내 미술관 공개 */}
@@ -59,13 +69,30 @@ const SettingsScreen = ({ navigation }) => {
           <Switch value={isGalleryPublic} onValueChange={setIsGalleryPublic} />
         </View>
 
+        {/* 배경 변경 */}
+        <View style={styles.settingItem}>
+          <Text style={styles.settingText}>배경 변경</Text>
+        </View>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={selectedBackground}
+            onValueChange={(itemValue) => handleBackgroundChange(itemValue)}
+            style={styles.picker}>
+            <Picker.Item label="배경 1" value="background.png" />
+            <Picker.Item label="배경 2" value="background2.webp" />
+            <Picker.Item label="배경 3" value="background3.webp" />
+          </Picker>
+        </View>
+
         {/* 캐시 삭제 */}
         <TouchableOpacity style={styles.settingItem} onPress={handleClearCache}>
           <Text style={styles.settingText}>캐시 삭제</Text>
         </TouchableOpacity>
 
         {/* 커플 파기 */}
-        <TouchableOpacity style={[styles.settingItem, styles.destructive]} onPress={handleBreakCouple}>
+        <TouchableOpacity
+          style={[styles.settingItem, styles.destructive]}
+          onPress={handleBreakCouple}>
           <Text style={styles.settingText}>커플 파기</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -99,11 +126,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
+  pickerContainer: {
+    marginTop: 10,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+  },
   settingText: {
     fontSize: 18,
   },
   destructive: {
-    borderBottomWidth: 0, // 마지막 항목이라 경계선 제거
+    borderBottomWidth: 0,
     marginTop: 30,
     backgroundColor: 'rgba(255, 0, 0, 0.1)',
     padding: 10,
