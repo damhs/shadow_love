@@ -1,16 +1,23 @@
 // mainRouter.js
-const express = require('express');
-const axios = require('axios');
+const express = require("express");
+const axios = require("axios");
+const dotenv = require("dotenv");
+const Openai = require("openai");
 const {
   createQuestion,
   getRandomQuestion,
+  getQuestion,
   createDiary,
   getDiary,
   createEmotion,
   getEmotion,
   getColor,
   createArtwork,
-} = require('../Services/mainService.js');
+} = require("../Services/mainService.js");
+
+dotenv.config();
+
+const openai = new Openai.OpenAI({ apikey: process.env.OPENAI_API_KEY });
 
 const mainRouter = express.Router();
 
@@ -18,13 +25,17 @@ async function getEmotionColorFromDiary(ID) {
   // DALL-E를 통한 감정 생성 요청
   const diary = await getDiary(ID);
   const [
-    question1,
+    questionID1,
     answerText1,
-    question2,
+    questionID2,
     answerText2,
-    question3,
+    questionID3,
     answerText3,
   ] = diary;
+  const questionText1 = await getQuestion(questionID1);
+  const questionText2 = await getQuestion(questionID2);
+  const questionText3 = await getQuestion(questionID3);
+
   const dalleResponse = await axios.post(
     "https://api.openai.com/v1/artworks/generations",
     {
@@ -33,7 +44,7 @@ async function getEmotionColorFromDiary(ID) {
       size: "1024x1024",
     },
     {
-      headers: { Authorization: `Bearer YOUR_OPENAI_API_KEY` },
+      headers: { Authorization: key },
     }
   );
 
@@ -51,7 +62,7 @@ async function getArtworkFromColor(color1, color2) {
       size: "1024x1024",
     },
     {
-      headers: { Authorization: `Bearer YOUR_OPENAI_API_KEY` },
+      headers: { Authorization: key },
     }
   );
 
@@ -67,7 +78,7 @@ async function getArtworkFromColor(color1, color2) {
   return artworkPath;
 }
 
-mainRouter.post('/createQuestion', async (req, res) => {
+mainRouter.post("/createQuestion", async (req, res) => {
   const { questionText } = req.body;
   try {
     const questionID = await createQuestion(questionText);
@@ -77,7 +88,7 @@ mainRouter.post('/createQuestion', async (req, res) => {
   }
 });
 
-mainRouter.get('/getRandomQuestion', async (req, res) => {
+mainRouter.get("/getRandomQuestion", async (req, res) => {
   try {
     const [question] = await getRandomQuestion();
     res.status(200).json(question);
@@ -86,17 +97,33 @@ mainRouter.get('/getRandomQuestion', async (req, res) => {
   }
 });
 
-mainRouter.post('/createDiary', async (req, res) => {
-  const { ID, questionID1, answerText1, questionID2, answerText2, questionID3, answerText3 } = req.body;
+mainRouter.post("/createDiary", async (req, res) => {
+  const {
+    ID,
+    questionID1,
+    answerText1,
+    questionID2,
+    answerText2,
+    questionID3,
+    answerText3,
+  } = req.body;
   try {
-    const diaryID = await createDiary(ID, questionID1, answerText1, questionID2, answerText2, questionID3, answerText3);
+    const diaryID = await createDiary(
+      ID,
+      questionID1,
+      answerText1,
+      questionID2,
+      answerText2,
+      questionID3,
+      answerText3
+    );
     res.status(200).json(diaryID);
   } catch (error) {
     res.status(500).json({ error: "Failed to create diary" });
   }
 });
 
-mainRouter.get('/getDiary', async (req, res) => {
+mainRouter.get("/getDiary", async (req, res) => {
   const { ID, date } = req.query;
   try {
     const diary = await getDiary(ID, date);
@@ -136,10 +163,49 @@ mainRouter.post("/createArtwork", async (req, res) => {
     const color1 = await getColor(ID1);
     const color2 = await getColor(ID2);
     const artworkPath = await getArtworkFromColor(color1, color2);
-    const artworkID = await createArtwork(ID1, ID2, emotionID1, emotionID2, artworkPath);
+    const artworkID = await createArtwork(
+      ID1,
+      ID2,
+      emotionID1,
+      emotionID2,
+      artworkPath
+    );
     res.status(200).json(artworkID);
   } catch (error) {
     res.status(500).json({ error: "Failed to create artwork" });
+  }
+});
+
+mainRouter.post("/openai-dalle", async (req, res) => {
+  const { prompt } = req.body;
+  try {
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: prompt,
+      size: "1024x1024",
+      quality: "standard",
+      n: 1,
+    });
+    res.status(200).json(response.data[0].url);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+mainRouter.post("/openai-gpt", async (req, res) => {
+  const { prompt } = req.body;
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that outputs HEX color codes for emotions." },
+        { role: "user", content: prompt },
+      ],
+      max_tokens: 100,
+    });
+    res.status(200).json(response["choices"][0]["message"]["content"]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

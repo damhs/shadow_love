@@ -37,6 +37,18 @@ const getRandomQuestion = async () => {
   }
 };
 
+const getQuestion = async (questionID) => {
+  try {
+    const [question] = await pool.query(
+      "SELECT questionText FROM Question WHERE questionID = UUID_TO_BIN(?, 1)",
+      [questionID]
+    );
+    return question[0].questionText;
+  } catch (error) {
+    console.error("Error getting question: ", error);
+  }
+};
+
 const createDiary = async (
   ID,
   questionID1,
@@ -145,6 +157,7 @@ const createArtwork = async (ID1, ID2, emotionID1, emotionID2, artworkPath) => {
 
 module.exports = {
   createQuestion,
+  getQuestion,
   getRandomQuestion,
   createDiary,
   getDiary,

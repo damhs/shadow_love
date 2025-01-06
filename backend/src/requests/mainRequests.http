@@ -1,4 +1,4 @@
-POST http://localhost:3001/diary/createQuestion/ HTTP/1.1
+POST http://localhost:3001/main/createQuestion/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -7,7 +7,46 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3001/diary/getRandomQuestion/ HTTP/1.1
+GET http://localhost:3001/main/getRandomQuestion/ HTTP/1.1
 
 ###
 
+POST http://localhost:3001/main/createDiary/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "ID"
+  "questionID1"
+  "answerText1"
+  "questionID2"
+  "answerText2"
+  "questionID3"
+  "answerText3"
+}
+
+###
+
+GET http://localhost:3001/main/getDiary?ID=?date= HTTP/1.1
+
+###
+
+POST http://localhost:3001/main/createEmotion/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "ID": "3b52b204-bf91-4e5b-a48a-440245ce663f"
+}
+
+###
+
+GET http://localhost:3001/main/getEmotion?ID=3b52b204-bf91-4e5b-a48a-440245ce663f HTTP/1.1
+
+###
+
+POST http://localhost:3001/main/createArtwork/ HTTP/1.1
+Content-Type: application/json
+
+{
+  "ID1": "3b52b204-bf91-4e5b-a48a-440245ce663f",
+  "ID2": "3b52b204-bf91-4e5b-a48a-440245ce663f"
+}
