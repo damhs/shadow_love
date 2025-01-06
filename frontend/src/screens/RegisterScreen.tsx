@@ -39,7 +39,7 @@ const RegisterAsCoupleScreen = ({ navigation }) => {
       const user = await axios.get(`${baseUrl}/auth/getUser`, { params: { ID: deviceID } });
       
       if (user.data.length === 0) {
-        Alert.alert("Error", "There is no user data.");
+        Alert.alert("Error", "It's wrong code.");
       }
 
       console.log(partnerCode);
