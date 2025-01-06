@@ -4,7 +4,7 @@ const uuid = require('uuid-sequential');
 const createUser = async(ID) => {
   try {
     await pool.query('INSERT INTO User (ID) VALUES (?)', [ID]);
-    console.log(ID);
+    console.log("User Inserted:", ID);
     return ID;
   } catch (error) {
     console.error('Error creating user: ', error);
@@ -56,6 +56,16 @@ const updateCouple = async(ID, coupleID) => {
   }
 }
 
+const createCouple = async(ID1, ID2) => {
+  try {
+    const coupleID = uuid();
+    await pool.query('INSERT INTO Couple (coupleID, ID1, ID2) VALUES (UUID_TO_BIN(?, 1), ?, ?)', [coupleID, ID1, ID2]);
+    return coupleID;
+  } catch (error) {
+    console.error('Error creating couple: ', error);
+  }
+}
+
 module.exports = {
   createUser,
   getUser,
@@ -63,4 +73,5 @@ module.exports = {
   getCouple,
   deleteUser,
   updateCouple,
+  createCouple,
 };

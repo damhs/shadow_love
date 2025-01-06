@@ -8,6 +8,18 @@ CREATE TABLE
     FOREIGN KEY (`coupleID`) REFERENCES `User` (`ID`) ON DELETE CASCADE
   );
 
+-- Couple 테이블
+CREATE TABLE
+  `Couple` (
+    `coupleID` BINARY(16) NOT NULL, -- Optimized UUID storage
+    `ID1` VARCHAR(36) NOT NULL,
+    `ID2` VARCHAR(36) NOT NULL,
+    `coupleName` VARCHAR(50),
+    PRIMARY KEY (`coupleID`),
+    FOREIGN KEY (`ID1`) REFERENCES `User` (`ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`ID2`) REFERENCES `User` (`ID`) ON DELETE CASCADE
+  )
+
 -- Question 테이블 100개의 감정 질문 저장
 CREATE TABLE
   `Question` (

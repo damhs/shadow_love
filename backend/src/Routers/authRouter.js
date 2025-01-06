@@ -7,23 +7,25 @@ const {
     getCouple,
     deleteUser,
     updateCouple,
+    createCouple,
 } = require('../Services/authService.js');
 
 const authRouter = express.Router();
 
 function generateCoupleRegisterID(ID) {
-  console.log(ID);
-  const hash = crypto.createHash("md5").update(ID).digest("hex"); // MD5 해시
-  console.log(parseInt(hash.substring(0, 8), 16) % 1000000);
-  return parseInt(hash.substring(0, 8), 16) % 1000000; // 6자리 숫자 생성
+  const hash = crypto.createHash("md5").update(ID).digest("hex");
+  const number = parseInt(hash.substring(0, 8), 16) % 1000000;
+  return number.toString().padStart(6, "0");
 }
 
 async function findIDByCoupleRegisterID(coupleregisterID) {
   const allUserID = await getAllUserID();
-  for (const ID of allUserID) {
-      if (generateCoupleRegisterID(ID) === coupleregisterID) {
-          return ID;
-      }
+  for (const user of allUserID) {
+    const { ID } = user;
+    decodedCoupleRegisterID = generateCoupleRegisterID(ID);
+    if (generateCoupleRegisterID(ID) === coupleregisterID) {
+      return ID;
+    }
   }
   throw new Error("No matching ID found for the given code");
 }
@@ -31,7 +33,6 @@ async function findIDByCoupleRegisterID(coupleregisterID) {
 authRouter.post('/createUser', async (req, res) => {
   const { ID } = req.body;
   try {
-      console.log(ID);
       await createUser(ID);
       res.status(200).json({ message: "User created" });
   } catch (error) {
@@ -52,9 +53,7 @@ authRouter.get('/getUser', async (req, res) => {
 authRouter.get('/getCoupleRegisterID', async (req, res) => {
   const { ID } = req.query;
   try {
-      console.log(ID);
       const coupleRegisterID = generateCoupleRegisterID(ID);
-      console.log(coupleRegisterID);
       res.status(200).json(coupleRegisterID);
   } catch (error) {
       res.status(500).json({ error: "Failed to get couple register ID" });
@@ -82,11 +81,14 @@ authRouter.delete('/deleteUser', async (req, res) => {
 });
 
 authRouter.patch('/updateCouple', async (req, res) => {
-  const { ID, coupleregisterID } = req.body;
+  const { ID, coupleRegisterID } = req.body;
   try {
-      const coupleID = await findIDByCoupleRegisterID(coupleregisterID);
+      const coupleID = await findIDByCoupleRegisterID(coupleRegisterID);
+      console.log(coupleID);
       await updateCouple(ID, coupleID);
-      res.status(200).json({ message: "Couple updated" });
+      await updateCouple(coupleID, ID);
+      await createCouple(ID, coupleID);
+      res.status(200).json(coupleID);
   } catch (error) {
       res.status(500).json({ error: "Failed to update couple" });
   }
