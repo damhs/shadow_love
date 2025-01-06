@@ -171,4 +171,3 @@ const styles = StyleSheet.create({
 });
 
 export default CustomCalendarScreen;
-AV

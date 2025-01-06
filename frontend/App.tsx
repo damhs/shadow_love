@@ -24,6 +24,7 @@ const App = () => {
     const checkDeviceRegistration = async () => {
       try {
         const deviceID = await DeviceInfo.getUniqueId();
+        console.log(deviceID);
 
         // 병렬 요청으로 데이터 가져오기
         const [userResponse, coupleResponse] = await Promise.all([
