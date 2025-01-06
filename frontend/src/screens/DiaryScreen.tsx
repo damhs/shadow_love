@@ -55,8 +55,13 @@ const DiaryScreen = ({navigation}) => {
     try {
       const deviceID = await DeviceInfo.getUniqueId();
       console.log('DeviceID:', deviceID);
-      const coupleResponse = await axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } });
-      console.log('coupleResponse:', coupleResponse);
+      const coupleResponse = await axios.get(
+        `${baseUrl}/auth/getCouple`,
+        {
+          params: { ID: deviceID },
+        },
+      );
+      console.log('coupleResponse:', coupleResponse.data);
       // Step 1: Save Diary
       const diaryResponse = await axios.post(
         `${baseUrl}/main/createDiary`,
@@ -84,15 +89,19 @@ const DiaryScreen = ({navigation}) => {
 
       // Step 3: Check Couple's Emotion
       console.log('coupleResponse:', coupleResponse.data);
+      const coupleID = coupleResponse.data;
+      console.log('coupleID:', coupleID);
       
       const coupleEmotionResponse = await axios.get(
         `${baseUrl}/main/getEmotion`,
         {
-          params: {ID: coupleResponse.data}, // Replace with dynamic partner ID
+          params: {ID: coupleID}, // Replace with dynamic partner ID
         },
       );
 
-      if (!coupleEmotionResponse.data) {
+      console.log('coupleEmotionResponse:', coupleEmotionResponse.data);
+
+      if (coupleEmotionResponse.data.length === 0) {
         Alert.alert(
           'Waiting for Partner',
           'Your partner has not completed their diary yet. Please wait for them.',
