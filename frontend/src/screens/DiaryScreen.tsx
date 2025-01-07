@@ -89,12 +89,12 @@ const DiaryScreen = ({navigation}) => {
       // Step 3: Check Couple's Emotion
       console.log('coupleResponse:', coupleResponse.data);
       const coupleID = coupleResponse.data;
-      console.log('coupleID:', coupleID);
+      console.log('coupleID:', coupleID[0].coupleID);
       
       const coupleEmotionResponse = await axios.get(
         `${baseUrl}/main/getEmotion`,
         {
-          params: {ID: coupleID}, // Replace with dynamic partner ID
+          params: {ID: ccoupleID[0].coupleID}, // Replace with dynamic partner ID
         },
       );
 
@@ -119,7 +119,7 @@ const DiaryScreen = ({navigation}) => {
         `${baseUrl}/main/createArtwork`,
         {
           ID1: deviceID, // Replace with dynamic user ID
-          ID2: coupleResponse, // Replace with dynamic partner ID
+          ID2: coupleID[0].coupleID, // Replace with dynamic partner ID
         },
       );
 

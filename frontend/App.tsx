@@ -43,7 +43,7 @@ const App = () => {
         }
 
         // 데이터 확인 후 초기 라우트 설정
-        if (coupleResponse.data[0].coupleID !== null) {
+        if (coupleResponse.data.length === 0 || coupleResponse.data[0].coupleID === null) {
           if (password == "") {
             setInitialRoute('Home');
           }
