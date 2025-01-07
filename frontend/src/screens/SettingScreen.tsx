@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,13 @@ import {
   Switch,
   TouchableOpacity,
 } from 'react-native';
-import { useBackground } from './BackgroundContext';
-import { Picker } from '@react-native-picker/picker';
+import {useBackground} from './BackgroundContext';
+import {Picker} from '@react-native-picker/picker';
+import DeviceInfo from 'react-native-device-info';
+import axios from 'axios';
+import config from '../config';
+
+const baseUrl = config.backendUrl;
 
 // 이미지 매핑 객체
 const backgroundMapping = {
@@ -18,12 +23,60 @@ const backgroundMapping = {
   'background3.webp': require('../assets/img/background3.webp'),
 };
 
-const SettingsScreen = ({ navigation }) => {
-  const { setBackground } = useBackground();
-  const [selectedBackground, setSelectedBackground] = useState('background.png');
+const SettingsScreen = ({navigation}) => {
+  const {setBackground} = useBackground();
+  const [selectedBackground, setSelectedBackground] =
+    useState('background.png');
   const [isGalleryPublic, setIsGalleryPublic] = useState(false);
 
-  const handleBackgroundChange = (selectedValue) => {
+  // API 호출 함수
+  const fetchIsGalleryPublic = async () => {
+    try {
+      const deviceID = await DeviceInfo.getUniqueId();
+      const response = await axios.get(`${baseUrl}/setting/getIsShowed`,  {
+        params: {ID: deviceID},
+      });
+      console.log('response:', response.data[0].isShowed);
+      // 0 또는 1을 boolean으로 변환
+      setIsGalleryPublic(response.data[0].isShowed !== 0);
+    } catch (error) {
+      console.error('Failed to fetch gallery visibility:', error);
+    }
+  };
+
+  const updateIsGalleryPublic = async (newValue) => {
+    try {
+      // Switch의 boolean 값을 0 또는 1로 변환
+      const deviceID = await DeviceInfo.getUniqueId();
+      const isShowedValue = newValue ? 1 : 0;
+      await axios.patch(`${baseUrl}/setting/updateIsShowed`, {
+        ID: deviceID,
+        isShowed: isShowedValue,
+      });
+      setIsGalleryPublic(newValue); // Switch 상태 업데이트
+    } catch (error) {
+      console.error('Failed to update gallery visibility:', error);
+    }
+  };
+
+  const deleteUserData = async () => {
+    try {
+      const deviceID = await DeviceInfo.getUniqueId();
+      await axios.delete(`${baseUrl}/setting/deleteUserData`, {
+        params: {ID: deviceID},
+      }); // 본인 데이터 삭제
+      await axios.delete(`${baseUrl}/setting/deleteUserData?partner=true`); // 파트너 데이터 삭제
+      Alert.alert('커플 관계가 해제되었습니다.');
+    } catch (error) {
+      console.error('Failed to delete user data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchIsGalleryPublic(); // 컴포넌트가 처음 로드될 때 실행
+  }, []);
+
+  const handleBackgroundChange = selectedValue => {
     setSelectedBackground(selectedValue);
     setBackground(backgroundMapping[selectedValue]); // 매핑된 이미지 사용
     Alert.alert('배경이 변경되었습니다!');
@@ -34,9 +87,9 @@ const SettingsScreen = ({ navigation }) => {
       '커플 파기',
       '정말 커플을 해제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
       [
-        { text: '취소', style: 'cancel' },
-        { text: '확인', onPress: () => Alert.alert('커플 관계가 해제되었습니다.') },
-      ]
+        {text: '취소', style: 'cancel'},
+        {text: '확인', onPress: deleteUserData}, // API 호출
+      ],
     );
   };
 
@@ -52,7 +105,10 @@ const SettingsScreen = ({ navigation }) => {
         {/* 내 미술관 공개 */}
         <View style={styles.settingItem}>
           <Text style={styles.settingText}>내 미술관 공개</Text>
-          <Switch value={isGalleryPublic} onValueChange={setIsGalleryPublic} />
+          <Switch
+            value={isGalleryPublic}
+            onValueChange={value => updateIsGalleryPublic(value)} // API 호출로 상태 업데이트
+          />
         </View>
 
         {/* 배경 변경 */}
@@ -62,7 +118,7 @@ const SettingsScreen = ({ navigation }) => {
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={selectedBackground}
-            onValueChange={(itemValue) => handleBackgroundChange(itemValue)}
+            onValueChange={itemValue => handleBackgroundChange(itemValue)}
             style={styles.picker}>
             <Picker.Item label="배경 1" value="background.png" />
             <Picker.Item label="배경 2" value="background2.webp" />
@@ -71,7 +127,9 @@ const SettingsScreen = ({ navigation }) => {
         </View>
 
         {/* 비밀번호 설정 버튼 */}
-        <TouchableOpacity style={styles.settingItem} onPress={handlePasswordSetting}>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={handlePasswordSetting}>
           <Text style={styles.settingText}>비밀번호 설정</Text>
         </TouchableOpacity>
 
@@ -84,7 +142,9 @@ const SettingsScreen = ({ navigation }) => {
       </ScrollView>
 
       {/* 돌아가기 버튼 */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>돌아가기</Text>
       </TouchableOpacity>
     </View>
