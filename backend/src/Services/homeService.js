@@ -16,11 +16,12 @@ const getCoupleID = async (ID) => {
 const getArtworks = async (ID) => {
   try {
     const [coupleID] = await getCoupleID(ID);
-    console.log(coupleID);
+    console.log(coupleID[0]);
     const [artwork] = await pool.query(
       "SELECT BIN_TO_UUID(artworkID) AS artworkID, BIN_TO_UUID(coupleID) AS coupleID, ID1, ID2, BIN_TO_UUID(emotionID1) AS emotionID1, BIN_TO_UUID(emotionID2) AS emotionID2, artworkPath, date, title, description FROM Artwork WHERE coupleID = UUID_TO_BIN(?, 1)",
       [coupleID.coupleID]
     );
+    console.log(artwork);
     return [artwork[0]];
   } catch (error) {
     console.error("Error getting artwork: ", error);

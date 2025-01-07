@@ -1,0 +1,5 @@
+GET http://localhost:80/gallery/getShowedCouples HTTP/1.1
+
+###
+
+GET http://localhost:80/gallery/getTodayArtworks?coupleID=205c43ac-fa16-3e3b-15c3-1fbfedb84970 HTTP/1.1

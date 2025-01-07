@@ -129,13 +129,13 @@ const createArtwork = async (ID1, ID2, emotionID1, emotionID2, artworkPath) => {
   try {
     const artworkID = uuid();
     const date = new Date().toISOString().split("T")[0];
-    const [coupleID] = await pool.query("SELECT coupleID FROM Couple WHERE ID1 = ? OR ID2 = ?", [ID1, ID1]);
-    console.log('coupleID:', coupleID);
+    const [coupleID] = await pool.query("SELECT BIN_TO_UUID(coupleID) AS coupleID FROM Couple WHERE ID1 = ? OR ID2 = ?", [ID1, ID1]);
+    console.log('coupleID:', coupleID[0].coupleID);
     await pool.query(
-      "INSERT INTO Artwork (artworkID, coupleID, ID1, ID2, emotionID1, emotionID2, artworkPath, date) VALUES (UUID_TO_BIN(?, 1), ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Artwork (artworkID, coupleID, ID1, ID2, emotionID1, emotionID2, artworkPath, date) VALUES (UUID_TO_BIN(?, 1), UUID_TO_BIN(?, 1), ?, ?, ?, ?, ?, ?)",
       [
         artworkID,
-        coupleID,
+        coupleID[0].coupleID,
         ID1,
         ID2,
         emotionID1,

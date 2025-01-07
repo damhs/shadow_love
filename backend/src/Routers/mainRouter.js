@@ -60,7 +60,7 @@ async function useGPT(prompt, retries = 3) {
   }
 }
 
-async function useDallE(prompt, maxRetries = 3) {
+async function useDallE(prompt, maxRetries = 5) {
   let attempt = 0;
 
   while (attempt < maxRetries) {
