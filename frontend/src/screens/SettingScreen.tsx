@@ -20,7 +20,6 @@ const backgroundMapping = {
 
 const SettingsScreen = ({ navigation }) => {
   const { setBackground } = useBackground();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedBackground, setSelectedBackground] = useState('background.png');
   const [isGalleryPublic, setIsGalleryPublic] = useState(false);
 
@@ -28,17 +27,6 @@ const SettingsScreen = ({ navigation }) => {
     setSelectedBackground(selectedValue);
     setBackground(backgroundMapping[selectedValue]); // 매핑된 이미지 사용
     Alert.alert('배경이 변경되었습니다!');
-  };
-
-  const handleClearCache = () => {
-    Alert.alert(
-      '캐시 삭제',
-      '캐시를 삭제하시겠습니까?',
-      [
-        { text: '취소', style: 'cancel' },
-        { text: '확인', onPress: () => Alert.alert('캐시가 삭제되었습니다.') },
-      ]
-    );
   };
 
   const handleBreakCouple = () => {
@@ -52,16 +40,14 @@ const SettingsScreen = ({ navigation }) => {
     );
   };
 
+  const handlePasswordSetting = () => {
+    navigation.navigate('Password'); // SetPasswordScreen으로 이동
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         <Text style={styles.title}>설정</Text>
-
-        {/* 다크 모드 */}
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>다크 모드</Text>
-          <Switch value={isDarkMode} onValueChange={setIsDarkMode} />
-        </View>
 
         {/* 내 미술관 공개 */}
         <View style={styles.settingItem}>
@@ -84,9 +70,9 @@ const SettingsScreen = ({ navigation }) => {
           </Picker>
         </View>
 
-        {/* 캐시 삭제 */}
-        <TouchableOpacity style={styles.settingItem} onPress={handleClearCache}>
-          <Text style={styles.settingText}>캐시 삭제</Text>
+        {/* 비밀번호 설정 버튼 */}
+        <TouchableOpacity style={styles.settingItem} onPress={handlePasswordSetting}>
+          <Text style={styles.settingText}>비밀번호 설정</Text>
         </TouchableOpacity>
 
         {/* 커플 파기 */}

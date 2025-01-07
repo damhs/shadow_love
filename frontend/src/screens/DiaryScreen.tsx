@@ -20,7 +20,6 @@ const DiaryScreen = ({navigation}) => {
   const [selectedQuestionTexts, setSelectedQuestionTexts] = useState([]);
   const [answers, setAnswers] = useState(['', '', '']);
   const [isComplete, setIsComplete] = useState(false); // Completion status
-
   const fetchRandomQuestions = async () => {
     try {
       const questions = await Promise.all([

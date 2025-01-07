@@ -8,7 +8,6 @@ import {
   Image,
   Text,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import paintingsData from '../../datas/paintings.json';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';

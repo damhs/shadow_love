@@ -13,12 +13,15 @@ import DiaryScreen from './src/screens/DiaryScreen';
 import SettingsScreen from './src/screens/SettingScreen';
 import ExploreScreen from './src/screens/ExploreScreen';
 import RegisterToHomeScreen from './src/screens/RegisterToHomeScreen';
+import LockScreen from './src/screens/LockScreen';
+import SetPasswordScreen from './src/screens/SetPasswordScreen';
 
 const Stack = createStackNavigator();
 const baseUrl = config.backendUrl;
 
 const App = () => {
   const [initialRoute, setInitialRoute] = useState(null);
+  const [password, setPassword] = useState("0000");
 
   useEffect(() => {
     const checkDeviceRegistration = async () => {
@@ -41,14 +44,19 @@ const App = () => {
 
         // 데이터 확인 후 초기 라우트 설정
         if (coupleResponse.data[0].coupleID !== null) {
-          setInitialRoute('Home');
+          if (password == "") {
+            setInitialRoute('Home');
+          }
+          else {
+            setInitialRoute('Lock');
+          }
         } else {
           setInitialRoute('Home');
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
         // 에러 발생 시 기본 라우트를 Home으로 설정
-        setInitialRoute('Home');
+        setInitialRoute('Lock');
       }
     };
 
@@ -76,6 +84,8 @@ const App = () => {
           <Stack.Screen name="Setting" component={SettingsScreen} />
           <Stack.Screen name="Explore" component={ExploreScreen} />
           <Stack.Screen name="Transition" component={RegisterToHomeScreen} />
+          <Stack.Screen name="Lock" component={LockScreen} initialParams={{ savedPassword: password }}/>
+          <Stack.Screen name="Password" component={SetPasswordScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </BackgroundProvider>
