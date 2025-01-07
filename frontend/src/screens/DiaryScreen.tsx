@@ -12,7 +12,6 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
 import config from '../config';
-import LoadingScreen from './LoadingScreen';
 
 const baseUrl = config.backendUrl;
 
@@ -108,7 +107,7 @@ const DiaryScreen = ({navigation}) => {
           [
             {
               text: 'OK',
-              onPress: () => navigation.goBack(), // Navigate to home screen
+              onPress: () => navigation.navigate('Home'), // Navigate to home screen
             },
           ],
         );

@@ -54,22 +54,31 @@ const HomeScreen = ({ navigation }) => {
 
   const handleTitleEdit = async () => {
     const currentPainting = artworks[currentIndex];
+  
+    // currentPainting 또는 artworkID가 없을 경우 요청 중단
+    if (!currentPainting || !currentPainting.artworkID) {
+      console.error('Artwork or Artwork ID is undefined');
+      setIsEditing(false); // 편집 모드 종료
+      return;
+    }
+  
     try {
       await axios.put(`${baseUrl}/updateArtworkTitle`, {
         artworkID: currentPainting.artworkID,
         newTitle,
       });
-
+  
       // 상태 업데이트
       const updatedArtworks = [...artworks];
       updatedArtworks[currentIndex].title = newTitle;
       setArtworks(updatedArtworks);
-
-      setIsEditing(false);
+  
+      setIsEditing(false); // 편집 모드 종료
     } catch (error) {
       console.error('Error updating title:', error);
     }
   };
+  
 
   const handleCalendarPress = () => navigation.navigate('Calendar');
   const handleSettingsPress = () => navigation.navigate('Setting');
@@ -121,13 +130,20 @@ const HomeScreen = ({ navigation }) => {
                 placeholderTextColor="#bbb"
               />
             ) : (
-              <TouchableOpacity onPress={() => {
-                setIsEditing(true);
-                setNewTitle(currentPainting?.title || '무제');
-              }}>
-                <Text style={baseStyles.title}>{currentPainting?.title || '무제'}</Text>
-              </TouchableOpacity>
+              currentPainting?.artwork ? ( // artwork가 존재할 때만 수정 가능
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsEditing(true);
+                    setNewTitle(currentPainting?.title || '무제');
+                  }}
+                >
+                  <Text style={baseStyles.title}>{currentPainting?.title || '무제'}</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={baseStyles.title}>Artwork not available</Text> // artwork가 없을 때 메시지 표시
+              )
             )}
+
             <Text style={baseStyles.date}>{currentPainting?.date}</Text>
           </View>
         )}

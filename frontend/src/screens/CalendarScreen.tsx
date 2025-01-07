@@ -12,7 +12,11 @@ import {
 } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import paintingsData from '../../datas/paintings.json';
+import DeviceInfo from "react-native-device-info";
+import axios from 'axios';
+import config from '../config';
 
+const baseUrl = config.backendUrl;
 const imageMapping = {
   painting1: require('../assets/painting/painting1.webp'),
   painting2: require('../assets/painting/painting2.webp'),
@@ -53,32 +57,33 @@ const CalendarScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const generateMarkedDates = () => {
-      const marked = {};
-      paintingsData.forEach((painting) => {
-        marked[painting.date] = {
-          customStyles: {
-            container: {
-              backgroundColor: `#${painting.color}`,
-              borderRadius: 8,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 3,
-            },
-            text: {
-              color: getTextColor(painting.color),
-              fontWeight: 'bold',
-            },
-          },
-        };
-      });
-      setMarkedDates(marked);
+    const fetchColors = async () => {
+      try {
+        const deviceID = await DeviceInfo.getUniqueId(); // 사용자 ID 가져오기
+        console.log('Device ID:', deviceID);
+        
+        const response = await axios.get(`${baseUrl}/calendar/colors`, {
+          params: { ID: deviceID },
+        });
+  
+        const data = response.data;
+        
+        console.log('Response:', response.data);
+        // 날짜별 색상을 캘린더 형식으로 변환
+        const formattedDates = {};
+        data.forEach((item) => {
+          formattedDates[item.date] = { selected: true, selectedColor: item.color };
+        });
+  
+        setMarkedDates(formattedDates); // 상태 업데이트
+      } catch (error) {
+        console.error('Error fetching calendar colors:', error);
+      }
     };
-
-    generateMarkedDates();
+  
+    fetchColors();
   }, []);
-
+  
   const handleDayPress = (day) => {
     const selected = paintingsData.find(
       (painting) => painting.date === day.dateString
@@ -106,7 +111,7 @@ const CalendarScreen = ({ navigation }) => {
       source={require('../assets/img/calendarbackground.png')} // 예술적인 배경 이미지
       style={styles.background}>
       <View style={styles.container}>
-        <Text style={styles.title}>미술 기록</Text>
+        <Text style={styles.title}>기록실</Text>
 
         <Calendar
           current={new Date().toISOString().split('T')[0]}
