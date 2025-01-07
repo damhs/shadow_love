@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,107 +7,68 @@ import {
   ImageBackground,
   Image,
   Text,
+  ActivityIndicator,
 } from 'react-native';
-import paintingsData from '../../datas/paintings.json';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useBackground } from './BackgroundContext'; // BackgroundContext 사용
+import DeviceInfo from 'react-native-device-info';
+import axios from 'axios';
+import config from '../config';
 
-// 이미지 매핑 객체
-const imageMapping = {
-  painting1: require('../assets/painting/painting1.webp'),
-  painting2: require('../assets/painting/painting2.webp'),
-  painting3: require('../assets/painting/painting3.webp'),
-};
-
+const baseUrl = config.backendUrl;
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const { background } = useBackground(); // 선택된 배경 가져오기
+  const [paintings, setPaintings] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true); // 로딩 상태 관리
+
+  useEffect(() => {
+    const fetchPaintings = async () => {
+      try {
+        const deviceID = await DeviceInfo.getUniqueId();
+        const response = await axios.get(
+          `${baseUrl}/home/getArtworks`,
+          {
+            params: { ID: deviceID },
+          },
+        ); // API 호출
+        console.log('response:', response.data);
+        const artworks = await Promise.all(response.data.map(async (artwork) => {
+          return { artwork: artwork['artwork'], date: artwork['date'] };
+        }))
+        console.log('artworks:', artworks);
+        setPaintings(artworks); // API에서 받은 데이터를 설정
+        setLoading(false); // 로딩 상태 종료
+      } catch (error) {
+        console.error('Error fetching paintings:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchPaintings();
+  }, []);
 
   const handleCalendarPress = () => navigation.navigate('Calendar');
   const handleSettingsPress = () => navigation.navigate('Setting');
 
   const handleLeftArrowPress = () => {
     if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
-    else setCurrentIndex(paintingsData.length - 1);
+    else setCurrentIndex(paintings.length - 1);
   };
 
   const handleRightArrowPress = () => {
-    if (currentIndex < paintingsData.length - 1) setCurrentIndex(currentIndex + 1);
+    if (currentIndex < paintings.length - 1) setCurrentIndex(currentIndex + 1);
     else setCurrentIndex(0);
   };
 
   const handlePencilPress = () => navigation.navigate('Diary');
   const handleGridPress = () => navigation.navigate('Explore');
 
-  const currentPainting = paintingsData[currentIndex];
-
-  // 배경에 따라 동적으로 스타일 설정
-  const dynamicStyles = () => {
-    if (background === require('../assets/img/background.png')) {
-      return {
-        imageContainer: {
-          marginTop: height * 0.145,
-          marginBottom: height * 0.06,
-        },
-        image: {
-          width: width * 0.4,
-          height: height * 0.31,
-        },
-        title: {
-          fontSize: width * 0.05,
-          marginTop: height * 0.06,
-        },
-        date: {
-          marginTop: height * 0.01,
-          fontSize: width * 0.045,
-        },
-      };
-    } else if (background === require('../assets/img/background2.webp')) {
-      return {
-        imageContainer: {
-          marginTop: height * 0.186,
-          marginBottom: height * 0.1,
-        },
-        image: {
-          width: width * 0.36,
-          height: height * 0.335,
-        },
-        title: {
-          fontSize: width * 0.05,
-          marginTop: height * 0.06,
-        },
-        date: {
-          marginTop: height * 0.015,
-          fontSize: width * 0.04,
-        },
-      };
-    } else if (background === require('../assets/img/background3.webp')) {
-      return {
-        imageContainer: {
-          marginTop: height * 0.14,
-          marginBottom: height * 0.05,
-        },
-        image: {
-          width: width * 0.42,
-          height: height * 0.33,
-        },
-        title: {
-          fontSize: width * 0.05,
-          marginTop: height * 0.06,
-        },
-        date: {
-          marginTop: height * 0.02,
-          fontSize: width * 0.05,
-        },
-      };
-    }
-    return {};
-  };
-
-  const styles = dynamicStyles();
+  // 현재 그림 데이터
+  const currentPainting = paintings[currentIndex];
 
   return (
     <ImageBackground source={background} style={baseStyles.background}>
@@ -122,12 +83,19 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 그림 및 정보 표시 */}
-        <View style={[baseStyles.imageContainer, styles.imageContainer]}>
-          <Image source={imageMapping[currentPainting.image]} style={[baseStyles.image, styles.image]} />
-          <Text style={[baseStyles.title, styles.title]}>{currentPainting.title}</Text>
-          <Text style={[baseStyles.date, styles.date]}>{currentPainting.date}</Text>
-        </View>
+        {/* 로딩 상태 표시 */}
+        {loading ? (
+          <ActivityIndicator size="large" color="#fff" style={baseStyles.loader} />
+        ) : (
+          <View style={baseStyles.imageContainer}>
+            <Image
+              source={{ uri: currentPainting?.artwork }} // API에서 받은 URL 사용
+              style={baseStyles.image}
+            />
+            <Text style={baseStyles.title}>{currentPainting?.title}</Text>
+            <Text style={baseStyles.date}>{currentPainting?.date}</Text>
+          </View>
+        )}
 
         {/* 좌우 화살표 */}
         <View style={baseStyles.arrowsContainer}>
@@ -165,20 +133,31 @@ const baseStyles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
     marginTop: height * 0.02,
   },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   imageContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    resizeMode: 'stretch',
+    width: width * 0.5,
+    height: height * 0.4,
+    resizeMode: 'contain',
   },
   title: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: width * 0.05,
+    marginTop: height * 0.02,
   },
   date: {
     color: '#aaa',
+    fontSize: width * 0.04,
+    marginTop: height * 0.01,
   },
   arrowsContainer: {
     flexDirection: 'row',
