@@ -21,12 +21,12 @@ const { width, height } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const { background } = useBackground(); // 선택된 배경 가져오기
-  const [paintings, setPaintings] = useState([]);
+  const [artworks, setArtworks] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
 
   useEffect(() => {
-    const fetchPaintings = async () => {
+    const fetchArtworks = async () => {
       try {
         const deviceID = await DeviceInfo.getUniqueId();
         const response = await axios.get(
@@ -35,20 +35,20 @@ const HomeScreen = ({ navigation }) => {
             params: { ID: deviceID },
           },
         ); // API 호출
-        console.log('response:', response.data);
+        // console.log('response:', response.data);
         const artworks = await Promise.all(response.data.map(async (artwork) => {
           return { artwork: artwork['artwork'], date: artwork['date'] };
         }))
-        console.log('artworks:', artworks);
-        setPaintings(artworks); // API에서 받은 데이터를 설정
+        // console.log('artworks:', artworks);
+        setArtworks(artworks); // API에서 받은 데이터를 설정
         setLoading(false); // 로딩 상태 종료
       } catch (error) {
-        console.error('Error fetching paintings:', error);
+        console.error('Error fetching artworks:', error);
         setLoading(false);
       }
     };
 
-    fetchPaintings();
+    fetchArtworks();
   }, []);
 
   const handleCalendarPress = () => navigation.navigate('Calendar');
@@ -56,11 +56,11 @@ const HomeScreen = ({ navigation }) => {
 
   const handleLeftArrowPress = () => {
     if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
-    else setCurrentIndex(paintings.length - 1);
+    else setCurrentIndex(artworks.length - 1);
   };
 
   const handleRightArrowPress = () => {
-    if (currentIndex < paintings.length - 1) setCurrentIndex(currentIndex + 1);
+    if (currentIndex < artworks.length - 1) setCurrentIndex(currentIndex + 1);
     else setCurrentIndex(0);
   };
 
@@ -68,7 +68,7 @@ const HomeScreen = ({ navigation }) => {
   const handleGridPress = () => navigation.navigate('Explore');
 
   // 현재 그림 데이터
-  const currentPainting = paintings[currentIndex];
+  const currentPainting = artworks[currentIndex];
 
   return (
     <ImageBackground source={background} style={baseStyles.background}>

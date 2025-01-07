@@ -16,38 +16,55 @@ const ExploreScreen = () => {
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // API 호출: isShowed가 true인 CoupleID 가져오기
   const fetchCoupleIDs = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/gallery/getShowedArtworks`); // isShowed가 true인 CoupleID API
-      console.log('response:', response);
-      return response.data; // CoupleID 목록 반환
+      console.log('fetchCoupleIDs');
+      const response = await axios.get(`${baseUrl}/gallery/getShowedCouples`);
+      console.log('response: ', response.data);
+      return response.data;
     } catch (error) {
       console.error(error);
       return [];
     }
   };
 
-  // API 호출: CoupleID로 Artwork 가져오기
-  const fetchArtworks = async (coupleIDs) => {
+  const fetchTodayArtworks = async (coupleIDs) => {
     try {
-      const promises = coupleIDs.map((id) =>
-        axios.get(`https://your-api.com/artworks/${id}`) // CoupleID로 Artwork를 가져오는 API
+      const results = await Promise.all(
+        coupleIDs.map((coupleID) =>
+          axios
+            .get(`${baseUrl}/gallery/getTodayArtworks`, {
+              params: { coupleID },
+            })
+            .catch((error) => {
+              console.error(`Error for coupleID ${coupleID}:`, error);
+              return null;
+            })
+        )
       );
-      const responses = await Promise.all(promises);
-      return responses.map((res) => res.data); // Artwork 데이터 목록 반환
+      // Filter null results and extract data
+      return results.filter((res) => res !== null).map((res) => res.data);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching artworks:', error);
       return [];
     }
   };
 
   useEffect(() => {
     const loadData = async () => {
-      const coupleIDs = await fetchCoupleIDs();
-      const artworks = await fetchArtworks(coupleIDs);
-      setArtworks(artworks);
-      setLoading(false);
+      try {
+        const coupleIDsResponse = await fetchCoupleIDs();
+        const coupleIDs = coupleIDsResponse.map((couple) => couple.coupleID);
+        const todayArtworks = await fetchTodayArtworks(coupleIDs);
+
+        // Flatten nested arrays if necessary
+        const flattenedArtworks = todayArtworks.flat();
+        setArtworks(flattenedArtworks);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadData();
@@ -66,15 +83,23 @@ const ExploreScreen = () => {
       <Text style={styles.title}>Mutual Art Galleries</Text>
       <FlatList
         data={artworks}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => item.coupleID || index.toString()}
         renderItem={({ item }) => (
           <View style={styles.artworkContainer}>
-            <Image source={{ uri: item.imageUrl }} style={styles.artworkImage} />
-            <Text style={styles.artworkTitle}>{item.title}</Text>
+            <Image
+              source={{ uri: item.artwork || 'https://via.placeholder.com/150' }}
+              style={styles.artworkImage}
+            />
+            <Text style={styles.artworkTitle}>{item.title || 'Untitled'}</Text>
           </View>
         )}
         numColumns={2}
         columnWrapperStyle={styles.row}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Text>No artworks available.</Text>
+          </View>
+        )}
       />
     </View>
   );
@@ -115,6 +140,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 16,
     textAlign: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -36,7 +36,7 @@ const App = () => {
         ]);
 
         console.log('userResponse:', userResponse.data);
-        console.log('coupleResponse:', coupleResponse.data[0].coupleID);
+        // console.log('coupleResponse:', coupleResponse.data);
 
         if (userResponse.data.length === 0) {
           await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
@@ -44,14 +44,14 @@ const App = () => {
 
         // 데이터 확인 후 초기 라우트 설정
         if (coupleResponse.data.length === 0 || coupleResponse.data[0].coupleID === null) {
+          setInitialRoute('Register');
+        } else {
           if (password == "") {
             setInitialRoute('Home');
           }
           else {
             setInitialRoute('Lock');
           }
-        } else {
-          setInitialRoute('Home');
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
