@@ -8,10 +8,11 @@ import {
   Image,
   Text,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useBackground } from './BackgroundContext'; // BackgroundContext 사용
+import { useBackground } from './BackgroundContext';
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
 import config from '../config';
@@ -20,28 +21,28 @@ const baseUrl = config.backendUrl;
 const { width, height } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
-  const { background } = useBackground(); // 선택된 배경 가져오기
+  const { background } = useBackground();
   const [artworks, setArtworks] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true); // 로딩 상태 관리
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
 
   useEffect(() => {
     const fetchArtworks = async () => {
       try {
         const deviceID = await DeviceInfo.getUniqueId();
-        const response = await axios.get(
-          `${baseUrl}/home/getArtworks`,
-          {
-            params: { ID: deviceID },
-          },
-        ); // API 호출
-        // console.log('response:', response.data);
-        const artworks = await Promise.all(response.data.map(async (artwork) => {
-          return { artwork: artwork['artwork'], date: artwork['date'] };
-        }))
-        // console.log('artworks:', artworks);
-        setArtworks(artworks); // API에서 받은 데이터를 설정
-        setLoading(false); // 로딩 상태 종료
+        const response = await axios.get(`${baseUrl}/home/getArtworks`, {
+          params: { ID: deviceID },
+        });
+        const artworks = response.data.map((artwork) => ({
+          artwork: artwork.artwork,
+          date: artwork.date,
+          title: artwork.title,
+          artworkID: artwork.artworkID, // 추가로 artworkID 포함
+        }));
+        setArtworks(artworks);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching artworks:', error);
         setLoading(false);
@@ -50,6 +51,25 @@ const HomeScreen = ({ navigation }) => {
 
     fetchArtworks();
   }, []);
+
+  const handleTitleEdit = async () => {
+    const currentPainting = artworks[currentIndex];
+    try {
+      await axios.put(`${baseUrl}/updateArtworkTitle`, {
+        artworkID: currentPainting.artworkID,
+        newTitle,
+      });
+
+      // 상태 업데이트
+      const updatedArtworks = [...artworks];
+      updatedArtworks[currentIndex].title = newTitle;
+      setArtworks(updatedArtworks);
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating title:', error);
+    }
+  };
 
   const handleCalendarPress = () => navigation.navigate('Calendar');
   const handleSettingsPress = () => navigation.navigate('Setting');
@@ -67,13 +87,11 @@ const HomeScreen = ({ navigation }) => {
   const handlePencilPress = () => navigation.navigate('Diary');
   const handleGridPress = () => navigation.navigate('Explore');
 
-  // 현재 그림 데이터
   const currentPainting = artworks[currentIndex];
 
   return (
     <ImageBackground source={background} style={baseStyles.background}>
       <View style={baseStyles.container}>
-        {/* 상단 아이콘 */}
         <View style={baseStyles.topBar}>
           <TouchableOpacity onPress={handleCalendarPress}>
             <Icon name="calendar-outline" size={30} color="#fff" />
@@ -83,21 +101,37 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 로딩 상태 표시 */}
         {loading ? (
           <ActivityIndicator size="large" color="#fff" style={baseStyles.loader} />
         ) : (
           <View style={baseStyles.imageContainer}>
             <Image
-              source={{ uri: currentPainting?.artwork }} // API에서 받은 URL 사용
+              source={{ uri: currentPainting?.artwork }}
               style={baseStyles.image}
             />
-            <Text style={baseStyles.title}>{currentPainting?.title}</Text>
+            {isEditing ? (
+              <TextInput
+                style={baseStyles.titleInput}
+                value={newTitle}
+                onChangeText={setNewTitle}
+                onBlur={handleTitleEdit}
+                autoFocus
+                maxLength={20}
+                placeholder="Enter title"
+                placeholderTextColor="#bbb"
+              />
+            ) : (
+              <TouchableOpacity onPress={() => {
+                setIsEditing(true);
+                setNewTitle(currentPainting?.title || '무제');
+              }}>
+                <Text style={baseStyles.title}>{currentPainting?.title || '무제'}</Text>
+              </TouchableOpacity>
+            )}
             <Text style={baseStyles.date}>{currentPainting?.date}</Text>
           </View>
         )}
 
-        {/* 좌우 화살표 */}
         <View style={baseStyles.arrowsContainer}>
           <TouchableOpacity style={baseStyles.arrowButton} onPress={handleLeftArrowPress}>
             <Icon name="chevron-back-outline" size={40} color="#fff" />
@@ -107,11 +141,16 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 하단 버튼 */}
-        <TouchableOpacity style={[baseStyles.floatingButton, baseStyles.leftButton]} onPress={handlePencilPress}>
+        <TouchableOpacity
+          style={[baseStyles.floatingButton, baseStyles.leftButton]}
+          onPress={handlePencilPress}
+        >
           <Icon name="brush-outline" size={30} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity style={[baseStyles.floatingButton, baseStyles.rightButton]} onPress={handleGridPress}>
+        <TouchableOpacity
+          style={[baseStyles.floatingButton, baseStyles.rightButton]}
+          onPress={handleGridPress}
+        >
           <MaterialIcons name="museum" size={30} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -153,6 +192,16 @@ const baseStyles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: width * 0.05,
     marginTop: height * 0.02,
+  },
+  titleInput: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: width * 0.05,
+    marginTop: height * 0.02,
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    textAlign: 'center',
+    width: '80%',
   },
   date: {
     color: '#aaa',

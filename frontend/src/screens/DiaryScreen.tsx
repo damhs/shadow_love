@@ -12,6 +12,7 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
 import config from '../config';
+import LoadingScreen from './LoadingScreen';
 
 const baseUrl = config.backendUrl;
 
@@ -107,7 +108,7 @@ const DiaryScreen = ({navigation}) => {
           [
             {
               text: 'OK',
-              onPress: () => navigation.navigate('Home'), // Navigate to home screen
+              onPress: () => navigation.goBack(), // Navigate to home screen
             },
           ],
         );
@@ -132,6 +133,8 @@ const DiaryScreen = ({navigation}) => {
         'Your diary, emotion, and artwork have been saved!',
       );
       setIsComplete(true);
+      navigation.navigate('Loading');
+      navigation.goBack();
 
       // Optionally navigate to a screen to view the artwork
       // navigation.navigate('ArtworkScreen', {artworkID});
