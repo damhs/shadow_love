@@ -63,7 +63,7 @@ const HomeScreen = ({ navigation }) => {
     }
   
     try {
-      await axios.put(`${baseUrl}/updateArtworkTitle`, {
+      await axios.put(`${baseUrl}/home/updateArtworkTitle`, {
         artworkID: currentPainting.artworkID,
         newTitle,
       });
