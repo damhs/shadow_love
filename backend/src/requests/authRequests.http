@@ -11,7 +11,7 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3001/auth/getUser?ID=3b52b204-bf91-4e5b-a48a-440245ce663f HTTP/1.1
+GET http://localhost:80/auth/getUser?ID=3858c91763e9b205 HTTP/1.1
 
 
 ###

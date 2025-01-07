@@ -1,0 +1,24 @@
+GET http://localhost:80/home/getCoupleID?ID=3858c91763e9b205 HTTP/1.1
+
+###
+
+GET http://localhost:80/home/getArtworks?ID=3858c91763e9b205 HTTP/1.1
+
+###
+
+[
+  {
+    "artworkID": "95c443ac-fa16-3e3b-17ac-a70d800ed0e3",
+    "coupleID": "3e3bfa16-205c-43ac-15c3-1fbfedb84970",
+    "ID1": "3858c91763e9b205",
+    "ID2": "9a8fe40b9af24cb8",
+    "emotionID1": "5b6f626a-6563-7420-4f62-6a6563745d00",
+    "emotionID2": "5b6f626a-6563-7420-4f62-6a6563745d00",
+    "date": "2025-01-07T00:00:00.000Z",
+    "title": null,
+    "description": null,
+    "artwork": ""
+  }
+]
+
+###

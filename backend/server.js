@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const authRouter = require('./src/Routers/authRouter');
 const mainRouter = require('./src/Routers/mainRouter');
 const galleryRouter = require('./src/Routers/galleryRouter');
+const homeRouter = require('./src/Routers/homeRouter');
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/auth', authRouter);
 app.use('/main', mainRouter);
 app.use('/gallery', galleryRouter);
+app.use('/home', homeRouter);
 
 const server = http.createServer(app);
 server.listen(app.get("port"), app.get("host"), () =>
