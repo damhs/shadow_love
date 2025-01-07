@@ -9,6 +9,7 @@ const mainRouter = require('./src/Routers/mainRouter');
 const galleryRouter = require('./src/Routers/galleryRouter');
 const homeRouter = require('./src/Routers/homeRouter');
 const settingRouter = require('./src/Routers/settingRouter');
+const calendarRouter = require('./src/Routers/calendarRouter');
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use('/main', mainRouter);
 app.use('/gallery', galleryRouter);
 app.use('/home', homeRouter);
 app.use('/setting', settingRouter);
+app.use('/calendar', calendarRouter);
 
 const server = http.createServer(app);
 server.listen(app.get("port"), app.get("host"), () =>
