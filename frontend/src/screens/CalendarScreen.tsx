@@ -62,7 +62,7 @@ const CalendarScreen = ({ navigation }) => {
         const deviceID = await DeviceInfo.getUniqueId(); // 사용자 ID 가져오기
         console.log('Device ID:', deviceID);
         
-        const response = await axios.get(`${baseUrl}/calendar/colors`, {
+        const response = await axios.get(`${baseUrl}/calendar/getEmotionColors`, {
           params: { ID: deviceID },
         });
   
@@ -74,7 +74,7 @@ const CalendarScreen = ({ navigation }) => {
         data.forEach((item) => {
           formattedDates[item.date] = { selected: true, selectedColor: item.color };
         });
-  
+        
         setMarkedDates(formattedDates); // 상태 업데이트
       } catch (error) {
         console.error('Error fetching calendar colors:', error);
