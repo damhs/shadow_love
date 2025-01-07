@@ -65,17 +65,16 @@ CREATE TABLE
 CREATE TABLE
   `Artwork` (
     `artworkID` BINARY(16) NOT NULL, -- Optimized UUID storage
+    `coupleID` BINARY(16) NOT NULL,
+    `ID1` VARCHAR(36) NOT NULL,
+    `ID2` VARCHAR(36) NOT NULL,
     `emotionID1` BINARY(16) NOT NULL,
     `emotionID2` BINARY(16) NOT NULL,
     `artworkPath` VARCHAR(255) NOT NULL, -- 서버에 이미지 저장 후 DB에 경로 저장
     `date` DATE, -- 날짜만 저장, 기본값은 오늘 날짜
-    `title` VARCHAR(20);
-    `description` VARCHAR(255); -- 작품 설명
-    `coupleID` BINARY(16) NOT NULL,
-    PRIMARY KEY (`artworkID`),
-    FOREIGN KEY (`emotionID1`) REFERENCES `Emotion` (`emotionID`) ON DELETE CASCADE,
-    FOREIGN KEY (`emotionID2`) REFERENCES `Emotion` (`emotionID`) ON DELETE CASCADE,
-    FOREIGN KEY (`coupleID`) REFERENCES `Couple` (`coupleID`) ON DELETE CASCADE
+    `title` VARCHAR(20),
+    `description` VARCHAR(255), -- 작품 설명
+    PRIMARY KEY (`artworkID`)
   );
 
 -- Trigger

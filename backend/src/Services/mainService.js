@@ -2,17 +2,6 @@
 const pool = require("../mysql.js");
 const uuid = require("uuid-sequential");
 
-const getDate = () => {
-  const date = new Date();
-
-  const year = date.getFullYear(); // Get the full year (e.g., 2025)
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based, so add 1 and pad with zero
-  const day = String(date.getDate()).padStart(2, "0"); // Get the day of the month and pad with zero
-
-  const formattedDate = `${year}-${month}-${day}`;
-  return formattedDate;
-};
-
 const createQuestion = async (questionText) => {
   try {
     const questionID = uuid();
@@ -60,7 +49,7 @@ const createDiary = async (
 ) => {
   try {
     const diaryID = uuid();
-    const formattedDate = getDate();
+    const date = new Date().toISOString().split("T")[0];
     await pool.query(
       "INSERT INTO Diary (diaryID, ID, questionID1, answerText1, questionID2, answerText2, questionID3, answerText3, date) VALUES (UUID_TO_BIN(?, 1), ?, UUID_TO_BIN(?, 1), ?, UUID_TO_BIN(?, 1), ?, UUID_TO_BIN(?, 1), ?, ?)",
       [
@@ -72,7 +61,7 @@ const createDiary = async (
         answerText2,
         questionID3,
         answerText3,
-        formattedDate,
+        date,
       ]
     );
     return diaryID;
@@ -96,14 +85,13 @@ const getDiary = async (ID, date) => {
 const createEmotion = async (ID, color) => {
   try {
     const emotionID = uuid();
-    const date = getDate();
+    const date = new Date().toISOString().split("T")[0];
     const diary = await getDiary(ID, date);
     const diaryID = diary[0].diaryID;
     console.log('diaryID:', diaryID);
-    const formattedDate = getDate();
     await pool.query(
       "INSERT INTO Emotion (emotionID, diaryID, ID, color, date) VALUES (UUID_TO_BIN(?, 1), UUID_TO_BIN(?, 1), ?, ?, ?)",
-      [emotionID, diaryID, ID, color, formattedDate]
+      [emotionID, diaryID, ID, color, date]
     );
     return emotionID;
   } catch (error) {
@@ -113,7 +101,7 @@ const createEmotion = async (ID, color) => {
 
 const getEmotion = async (ID) => {
   try {
-    const date = getDate();
+    const date = new Date().toISOString().split("T")[0];
     const [emotion] = await pool.query(
       "SELECT BIN_TO_UUID(emotionID) AS emotionID, ID, BIN_TO_UUID(diaryID), color, date FROM Emotion WHERE ID = ? AND date = ?",
       [ID, date]
@@ -126,10 +114,10 @@ const getEmotion = async (ID) => {
 
 const getColor = async (ID) => {
   try {
-    const formattedDate = getDate();
+    const date = new Date().toISOString().split("T")[0];
     const [color] = await pool.query(
       "SELECT color FROM Emotion WHERE ID = ? AND date = ?",
-      [ID, formattedDate]
+      [ID, date]
     );
     return color[0].color;
   } catch (error) {
@@ -140,17 +128,20 @@ const getColor = async (ID) => {
 const createArtwork = async (ID1, ID2, emotionID1, emotionID2, artworkPath) => {
   try {
     const artworkID = uuid();
-    const formattedDate = getDate();
+    const date = new Date().toISOString().split("T")[0];
+    const coupleID = await pool.query("SELECT coupleID FROM Couple WHERE ID1 = ? OR ID2 = ?", [ID1, ID1]);
+    console.log('coupleID:', coupleID);
     await pool.query(
-      "INSERT INTO Artwork (artworkID, ID1, ID2, emotionID1, emotionID2, artworkPath, date) VALUES (UUID_TO_BIN(?, 1), ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO Artwork (artworkID, coupleID, ID1, ID2, emotionID1, emotionID2, artworkPath, date) VALUES (UUID_TO_BIN(?, 1), ?, ?, ?, ?, ?, ?, ?)",
       [
         artworkID,
+        coupleID,
         ID1,
         ID2,
         emotionID1,
         emotionID2,
         artworkPath,
-        formattedDate,
+        date,
       ]
     );
     return artworkID;

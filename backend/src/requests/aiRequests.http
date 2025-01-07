@@ -13,3 +13,12 @@ Content-Type: application/json
 {
   "prompt": "Based on the following questions and answers, suggest a HEX color code that represents the overall emotion conveyed in the responses:\n\nQuestion 1: What made you happy today?\nAnswer 1: Spending time with my family and enjoying a beautiful sunset.\n\nQuestion 2: What was a challenge you faced today?\nAnswer 2: I struggled to complete an important work deadline.\n\nQuestion 3: What is something you are looking forward to?\nAnswer 3: I am excited about going on a vacation this weekend.\n\nProvide the result in this format: #XXXXXX"
 }
+
+###
+
+GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-NcbUTu5j4Vk0Mh3uMM1kMSqe/user-r6UOk4R22QFt0EGd7HTlPY2A/img-5cNf3RSYWVK3r6kPgLmsnZAB.png?st=2025-01-06T23%3A37%3A29Z&se=2025-01-07T01%3A37%3A29Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-01-07T00%3A27%3A03Z&ske=2025-01-08T00%3A27%3A03Z&sks=b&skv=2024-08-04&sig=cC8TCX1mUL8PWtPSGN2PbsSijJz3icHruA%2BbnPMMemc%3D
+Content-Type: application/json
+
+{
+  "responseType": "arraybuffer"
+}

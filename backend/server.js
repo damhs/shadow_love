@@ -12,11 +12,11 @@ dotenv.config();
 
 const app = express();
 
-app.set("port", 3001);
+app.set("port", 80);
 app.set("host", "0.0.0.0");
 
 const corsOptions = {
-    origin: "http://localhost:3001",
+    origin: "http://localhost:80",
     credentials: true
 };
 
