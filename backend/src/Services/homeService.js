@@ -18,7 +18,7 @@ const getArtworks = async (ID) => {
     const [coupleID] = await getCoupleID(ID);
     console.log(coupleID[0]);
     const [artwork] = await pool.query(
-      "SELECT BIN_TO_UUID(artworkID) AS artworkID, BIN_TO_UUID(coupleID) AS coupleID, ID1, ID2, BIN_TO_UUID(emotionID1) AS emotionID1, BIN_TO_UUID(emotionID2) AS emotionID2, artworkPath, date, title, description FROM Artwork WHERE coupleID = UUID_TO_BIN(?, 1)",
+      "SELECT BIN_TO_UUID(artworkID) AS artworkID, BIN_TO_UUID(coupleID) AS coupleID, ID1, ID2, BIN_TO_UUID(emotionID1) AS emotionID1, BIN_TO_UUID(emotionID2) AS emotionID2, artworkPath, DATE_FORMAT(date, '%Y-%m-%d') AS date, title, description FROM Artwork WHERE coupleID = UUID_TO_BIN(?, 1)",
       [coupleID.coupleID]
     );
     console.log(artwork);
@@ -28,7 +28,21 @@ const getArtworks = async (ID) => {
   }
 }
 
+const updateArtworkTitle = async (artworkID, newTitle) => {
+  try {
+    await pool.query(
+      "UPDATE Artwork SET title = ? WHERE artworkID = UUID_TO_BIN(?, 1)",
+      [newTitle, artworkID]
+    );
+    return true;
+  } catch (error) {
+    console.error("Error updating artwork title: ", error);
+    return false;
+  }
+}
+
 module.exports = {
   getCoupleID,
   getArtworks,
+  updateArtworkTitle,
 };
