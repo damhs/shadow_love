@@ -94,7 +94,7 @@ const DiaryScreen = ({navigation}) => {
       const coupleEmotionResponse = await axios.get(
         `${baseUrl}/main/getEmotion`,
         {
-          params: {ID: ccoupleID[0].coupleID}, // Replace with dynamic partner ID
+          params: {ID: coupleID[0].coupleID}, // Replace with dynamic partner ID
         },
       );
 
