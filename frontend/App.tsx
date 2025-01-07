@@ -19,6 +19,7 @@ import SetPasswordScreen from './src/screens/SetPasswordScreen';
 const Stack = createStackNavigator();
 const baseUrl = config.backendUrl;
 
+
 const App = () => {
   const [initialRoute, setInitialRoute] = useState(null);
   const [password, setPassword] = useState("0000");
@@ -44,14 +45,19 @@ const App = () => {
 
         // 데이터 확인 후 초기 라우트 설정
         if (coupleResponse.data.length === 0 || coupleResponse.data[0].coupleID === null) {
-          setInitialRoute('Register');
-        } else {
           setInitialRoute('Home');
+        } else {
+          if (password == "") {
+            setInitialRoute('Home');
+          }
+          else {
+            setInitialRoute('Home');
+          }
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
         // 에러 발생 시 기본 라우트를 Home으로 설정
-        setInitialRoute('Register');
+        setInitialRoute('Home');
       }
     };
 
@@ -79,8 +85,8 @@ const App = () => {
           <Stack.Screen name="Setting" component={SettingsScreen} />
           <Stack.Screen name="Explore" component={ExploreScreen} />
           <Stack.Screen name="Transition" component={RegisterToHomeScreen} />
-          <Stack.Screen name="Lock" component={LockScreen} initialParams={{ savedPassword: password }}/>
-          <Stack.Screen name="Password" component={SetPasswordScreen} initialParams={{ savedPassword: password }}/>
+          <Stack.Screen name="Lock" component={LockScreen} />
+          <Stack.Screen name="Password" component={SetPasswordScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </BackgroundProvider>

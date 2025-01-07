@@ -12,6 +12,7 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
 import config from '../config';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const baseUrl = config.backendUrl;
 
@@ -164,11 +165,16 @@ const DiaryScreen = ({navigation}) => {
 
   return (
     <ImageBackground
-      source={require('../assets/img/diary_background.png')}
-      style={styles.background}>
+      source={require('../assets/img/diary_background_3.png')}
+      style={styles.background}
+    >
+      {/* 상단에 뒤로가기 아이콘만 추가 */}
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Icon name="arrow-back-outline" size={30} color="#FFF" /> {/* 아이콘만 표시 */}
+      </TouchableOpacity>
+  
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Today's Diary Questions</Text>
-
+        <Text style={styles.title, styles.customFont, { marginTop: 40 , fontSize: 24, textAlign: 'center', color: '#FFF'}}>Today's Diary Questions</Text>
         {selectedQuestionTexts.map((question, index) => (
           <View key={index} style={styles.questionContainer}>
             <Text style={styles.customFont}>
@@ -176,12 +182,12 @@ const DiaryScreen = ({navigation}) => {
             </Text>
             <TextInput
               style={[
-                styles.input,
-                isComplete && {backgroundColor: '#e9ecef', color: '#6c757d'},
+                styles.input, styles.customFont,
+                isComplete && { backgroundColor: '#e9ecef', color: '#6c757d' },
               ]}
               placeholder="Write your answer here..."
               value={answers[index]}
-              onChangeText={text => handleAnswerChange(index, text)}
+              onChangeText={(text) => handleAnswerChange(index, text)}
               multiline={true}
               maxLength={200}
               editable={!isComplete}
@@ -189,12 +195,13 @@ const DiaryScreen = ({navigation}) => {
             <Text style={styles.charCount}>{answers[index].length}/200</Text>
           </View>
         ))}
-
+  
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.completeButton}
             onPress={handleComplete}
-            disabled={isComplete}>
+            disabled={isComplete}
+          >
             <Text style={styles.buttonText}>
               {isComplete ? 'Completed' : 'Complete'}
             </Text>
@@ -203,6 +210,7 @@ const DiaryScreen = ({navigation}) => {
       </ScrollView>
     </ImageBackground>
   );
+  
 };
 
 const styles = StyleSheet.create({
@@ -210,89 +218,91 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover',
   },
+  backButton: {
+    position: 'absolute',
+    top: 20, // 화면 상단으로 위치 조정
+    left: 20, // 왼쪽 여백
+    zIndex: 10, // 아이콘을 다른 요소 위에 표시
+    marginTop: 40,
+  },
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
     textAlign: 'center',
-    color: '#fff',
-  },
+    marginVertical: 20,
+    color: '#FFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },  
   questionContainer: {
-    width: '100%',
-    marginBottom: 20,
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: '#F9F9F9', // 연한 배경
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E0E0E0', // 경계선 색상
   },
-  question: {
+  customFont: {
     fontSize: 18,
     marginBottom: 10,
-    fontWeight: 'bold',
-    color: '#fff',
   },
   input: {
-    height: 100, // 박스 높이를 키워서 텍스트 공간 추가
-    borderRadius: 10, // 부드러운 곡선 모서리
+    height: 120,
+    borderRadius: 10,
     padding: 15,
     fontSize: 16,
-    backgroundColor: '#fff', // 흰색 배경
+    backgroundColor: '#FFFFFF',
     textAlignVertical: 'top',
-    color: '#333', // 텍스트 색상
-    borderWidth: 1, // 테두리 추가
-    borderColor: '#ddd', // 테두리 색상
-    shadowColor: '#000', // 그림자 효과
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
+    color: '#4A4A4A',
+    borderWidth: 1,
+    borderColor: '#DDDDDD',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 3,
-    elevation: 5, // Android 그림자 효과
-    backgroundImage: 'url("../assets/img/diary_background.png")', // 텍스처 이미지 적용
-  },
+    elevation: 2,
+    placeholderTextColor: '#AAAAAA', // 플레이스홀더 색상
+  },  
   charCount: {
     textAlign: 'right',
-    marginTop: 5,
-    fontSize: 14,
-    color: '#aaa',
+    color: '#888',
+    fontSize: 12,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginTop: 20,
-    width: '100%',
-  },
-  backButton: {
-    backgroundColor: '#6c757d',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: '30%',
-  },
-  saveButton: {
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: '30%',
+    alignItems: 'flex-end',
+    
   },
   completeButton: {
-    backgroundColor: '#28a745',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: '30%',
+    backgroundColor: 'rgb(69, 223, 82)',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 10, // 둥근 모서리
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
-    color: 'white',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
-  },
+  },  
   customFont: {
     fontSize: 20,
     fontFamily: 'Nanum GaRamYeonGgoc',
   },
 });
+
 
 export default DiaryScreen;
