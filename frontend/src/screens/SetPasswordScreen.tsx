@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SetPasswordScreen = ({ navigation, route }) => {
-  const { setPassword } = route.params; // 부모 컴포넌트에서 비밀번호 설정 함수 전달
+const SetPasswordScreen = ({ navigation }) => {
   const [password, setPasswordInput] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
 
-  // 키패드 버튼 눌렀을 때 동작
+  // 숫자 입력 핸들러
   const handleNumberPress = (num) => {
     if (!isConfirming) {
       if (password.length < 4) setPasswordInput((prev) => prev + num);
@@ -16,19 +22,28 @@ const SetPasswordScreen = ({ navigation, route }) => {
     }
   };
 
-  // 초기화 버튼 눌렀을 때
+  // 초기화 버튼 핸들러
   const handleReset = () => {
     setPasswordInput('');
     setConfirmPassword('');
     setIsConfirming(false);
   };
 
-  // 비밀번호 설정 완료
-  const handleSubmit = () => {
-    if (password === confirmPassword) {
-      setPasswordInput(password); // 새로운 비밀번호로 설정
+  // 비밀번호 저장 핸들러
+  const savePassword = async (password) => {
+    try {
+      await AsyncStorage.setItem('userPassword', password);
       Alert.alert('성공', '비밀번호가 설정되었습니다!');
       navigation.goBack(); // 이전 화면으로 이동
+    } catch (error) {
+      Alert.alert('오류', '비밀번호 저장 중 문제가 발생했습니다.');
+    }
+  };
+
+  // 제출 핸들러
+  const handleSubmit = () => {
+    if (password === confirmPassword) {
+      savePassword(password); // AsyncStorage에 비밀번호 저장
     } else {
       Alert.alert('오류', '비밀번호가 일치하지 않습니다.');
       handleReset();

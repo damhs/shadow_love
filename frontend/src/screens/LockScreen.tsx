@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LockScreen = ({ navigation, route }) => {
-  const { savedPassword } = route.params; // 저장된 비밀번호 가져오기
   const [enteredPassword, setEnteredPassword] = useState('');
+  const [savedPassword, setSavedPassword] = useState(null);
+
+  useEffect(() => {
+    const loadPassword = async () => {
+      try {
+        const password = await AsyncStorage.getItem('userPassword');
+        setSavedPassword(password);
+      } catch (error) {
+        console.error('비밀번호 로드 오류:', error);
+        Alert.alert('오류', '비밀번호를 로드할 수 없습니다.');
+      }
+    };
+
+    loadPassword();
+  }, []);
 
   const handleNumberPress = (num) => {
     if (enteredPassword.length < 4) {

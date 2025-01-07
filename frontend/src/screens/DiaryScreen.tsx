@@ -169,7 +169,7 @@ const DiaryScreen = ({navigation}) => {
 
         {selectedQuestionTexts.map((question, index) => (
           <View key={index} style={styles.questionContainer}>
-            <Text style={styles.question}>
+            <Text style={styles.customFont}>
               {index + 1}. {question}
             </Text>
             <TextInput
@@ -286,6 +286,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  customFont: {
+    fontSize: 20,
+    fontFamily: 'Nanum GaRamYeonGgoc',
   },
 });
 
