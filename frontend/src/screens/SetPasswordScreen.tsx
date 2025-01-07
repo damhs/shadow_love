@@ -26,7 +26,7 @@ const SetPasswordScreen = ({ navigation, route }) => {
   // 비밀번호 설정 완료
   const handleSubmit = () => {
     if (password === confirmPassword) {
-      setPassword(password); // 새로운 비밀번호로 설정
+      setPasswordInput(password); // 새로운 비밀번호로 설정
       Alert.alert('성공', '비밀번호가 설정되었습니다!');
       navigation.goBack(); // 이전 화면으로 이동
     } else {
@@ -46,7 +46,7 @@ const SetPasswordScreen = ({ navigation, route }) => {
 
       {/* 키패드 */}
       <View style={styles.keypad}>
-        {Array.from({ length: 10 }, (_, i) => (
+        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((i) => (
           <TouchableOpacity
             key={i}
             style={styles.key}

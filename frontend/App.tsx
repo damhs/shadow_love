@@ -85,7 +85,7 @@ const App = () => {
           <Stack.Screen name="Explore" component={ExploreScreen} />
           <Stack.Screen name="Transition" component={RegisterToHomeScreen} />
           <Stack.Screen name="Lock" component={LockScreen} initialParams={{ savedPassword: password }}/>
-          <Stack.Screen name="Password" component={SetPasswordScreen} />
+          <Stack.Screen name="Password" component={SetPasswordScreen} initialParams={{ savedPassword: password }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </BackgroundProvider>

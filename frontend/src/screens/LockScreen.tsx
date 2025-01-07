@@ -29,13 +29,13 @@ const LockScreen = ({ navigation, route }) => {
 
       {/* 키패드 */}
       <View style={styles.keypad}>
-        {Array.from({ length: 10 }, (_, i) => (
-          <TouchableOpacity
+        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((i) => (
+            <TouchableOpacity
             key={i}
             style={styles.key}
             onPress={() => handleNumberPress(i.toString())}>
             <Text style={styles.keyText}>{i}</Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
         ))}
       </View>
 
