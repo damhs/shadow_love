@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -9,19 +9,20 @@ import {
   Text,
   ActivityIndicator,
   TextInput,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useBackground } from './BackgroundContext';
+import {useBackground} from './BackgroundContext';
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
 import config from '../config';
 
 const baseUrl = config.backendUrl;
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-const HomeScreen = ({ navigation }) => {
-  const { background } = useBackground();
+const HomeScreen = ({navigation}) => {
+  const {background} = useBackground();
   const [artworks, setArtworks] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -33,9 +34,9 @@ const HomeScreen = ({ navigation }) => {
       try {
         const deviceID = await DeviceInfo.getUniqueId();
         const response = await axios.get(`${baseUrl}/home/getArtworks`, {
-          params: { ID: deviceID },
+          params: {ID: deviceID},
         });
-        const artworks = response.data.map((artwork) => ({
+        const artworks = response.data.map(artwork => ({
           artwork: artwork.artwork,
           date: artwork.date,
           title: artwork.title,
@@ -44,7 +45,7 @@ const HomeScreen = ({ navigation }) => {
         setArtworks(artworks);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching artworks:', error);
+        setArtworks([]); // 빈 상태로 처리
         setLoading(false);
       }
     };
@@ -54,31 +55,30 @@ const HomeScreen = ({ navigation }) => {
 
   const handleTitleEdit = async () => {
     const currentPainting = artworks[currentIndex];
-  
+
     // currentPainting 또는 artworkID가 없을 경우 요청 중단
     if (!currentPainting || !currentPainting.artworkID) {
       console.error('Artwork or Artwork ID is undefined');
       setIsEditing(false); // 편집 모드 종료
       return;
     }
-  
+
     try {
       await axios.put(`${baseUrl}/home/updateArtworkTitle`, {
         artworkID: currentPainting.artworkID,
         newTitle,
       });
-  
+
       // 상태 업데이트
       const updatedArtworks = [...artworks];
       updatedArtworks[currentIndex].title = newTitle;
       setArtworks(updatedArtworks);
-  
+
       setIsEditing(false); // 편집 모드 종료
     } catch (error) {
       console.error('Error updating title:', error);
     }
   };
-  
 
   const handleCalendarPress = () => navigation.navigate('Calendar');
   const handleSettingsPress = () => navigation.navigate('Setting');
@@ -93,7 +93,19 @@ const HomeScreen = ({ navigation }) => {
     else setCurrentIndex(0);
   };
 
-  const handlePencilPress = () => navigation.navigate('Diary');
+  const handlePencilPress = () => {
+    const today = new Date().toISOString().split('T')[0]; // 현재 날짜 (YYYY-MM-DD 형식)
+    const todayDiary = artworks.some(artwork => artwork.date === today);
+
+    if (todayDiary) {
+      Alert.alert('Diary 작성 완료', '이미 오늘의 Diary를 작성하셨습니다.', [
+        {text: '확인'},
+      ]);
+    } else {
+      navigation.navigate('Diary');
+    }
+  };
+
   const handleGridPress = () => navigation.navigate('Explore');
 
   const currentPainting = artworks[currentIndex];
@@ -111,11 +123,19 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#fff" style={baseStyles.loader} />
+          <ActivityIndicator
+            size="large"
+            color="#fff"
+            style={baseStyles.loader}
+          />
+        ) : artworks.length === 0 ? ( // artworks가 비어 있을 때 처리
+          <View style={baseStyles.imageContainer}>
+            <Text style={baseStyles.title}>오늘을 기록해 보세요.</Text>
+          </View>
         ) : (
           <View style={baseStyles.imageContainer}>
             <Image
-              source={{ uri: currentPainting?.artwork }}
+              source={{uri: currentPainting?.artwork}}
               style={baseStyles.image}
             />
             {isEditing ? (
@@ -129,19 +149,18 @@ const HomeScreen = ({ navigation }) => {
                 placeholder="Enter title"
                 placeholderTextColor="#bbb"
               />
+            ) : currentPainting?.artwork ? ( // artwork가 존재할 때만 수정 가능
+              <TouchableOpacity
+                onPress={() => {
+                  setIsEditing(true);
+                  setNewTitle(currentPainting?.title || '무제');
+                }}>
+                <Text style={baseStyles.title}>
+                  {currentPainting?.title || '무제'}
+                </Text>
+              </TouchableOpacity>
             ) : (
-              currentPainting?.artwork ? ( // artwork가 존재할 때만 수정 가능
-                <TouchableOpacity
-                  onPress={() => {
-                    setIsEditing(true);
-                    setNewTitle(currentPainting?.title || '무제');
-                  }}
-                >
-                  <Text style={baseStyles.title}>{currentPainting?.title || '무제'}</Text>
-                </TouchableOpacity>
-              ) : (
-                <Text style={baseStyles.title}>Artwork not available</Text> // artwork가 없을 때 메시지 표시
-              )
+              <Text style={baseStyles.title}>Artwork not available</Text> // artwork가 없을 때 메시지 표시
             )}
 
             <Text style={baseStyles.date}>{currentPainting?.date}</Text>
@@ -149,24 +168,26 @@ const HomeScreen = ({ navigation }) => {
         )}
 
         <View style={baseStyles.arrowsContainer}>
-          <TouchableOpacity style={baseStyles.arrowButton} onPress={handleLeftArrowPress}>
+          <TouchableOpacity
+            style={baseStyles.arrowButton}
+            onPress={handleLeftArrowPress}>
             <Icon name="chevron-back-outline" size={40} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={baseStyles.arrowButton} onPress={handleRightArrowPress}>
+          <TouchableOpacity
+            style={baseStyles.arrowButton}
+            onPress={handleRightArrowPress}>
             <Icon name="chevron-forward-outline" size={40} color="#fff" />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
           style={[baseStyles.floatingButton, baseStyles.leftButton]}
-          onPress={handlePencilPress}
-        >
+          onPress={handlePencilPress}>
           <Icon name="brush-outline" size={30} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity
           style={[baseStyles.floatingButton, baseStyles.rightButton]}
-          onPress={handleGridPress}
-        >
+          onPress={handleGridPress}>
           <MaterialIcons name="museum" size={30} color="#fff" />
         </TouchableOpacity>
       </View>
