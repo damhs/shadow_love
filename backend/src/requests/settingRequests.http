@@ -1,0 +1,11 @@
+GET http://localhost:80/setting/getIsShowed?ID=3858c91763e9b205 HTTP/1.1
+
+###
+
+PATCH http://localhost:80/setting/updateIsShowed HTTP/1.1
+Content-Type: application/json
+
+{
+    "ID": "3858c91763e9b205",
+    "isShowed": 0
+}

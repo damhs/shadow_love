@@ -8,6 +8,7 @@ const {
     deleteUser,
     updateCouple,
     createCouple,
+    deleteDuplicateCouple,
 } = require('../Services/authService.js');
 
 const authRouter = express.Router();
@@ -88,6 +89,7 @@ authRouter.patch('/updateCouple', async (req, res) => {
       await updateCouple(ID, coupleID);
       await updateCouple(coupleID, ID);
       await createCouple(ID, coupleID);
+      await deleteDuplicateCouple(ID, coupleID);
       res.status(200).json(coupleID);
   } catch (error) {
       res.status(500).json({ error: "Failed to update couple" });

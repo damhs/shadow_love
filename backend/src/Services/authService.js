@@ -66,6 +66,20 @@ const createCouple = async(ID1, ID2) => {
   }
 }
 
+const deleteDuplicateCouple = async(ID1, ID2) => {
+  try {
+    const [couples] = await pool.query('SELECT * FROM Couple WHERE (ID1 = ? AND ID2 = ?) OR (ID1 = ? AND ID2 = ?)', [ID1, ID2, ID2, ID1]);
+    if (couples.length === 2) {
+      await pool.query('DELETE FROM Couple WHERE (ID1 = ? AND ID2 = ?) OR (ID1 = ? AND ID2 = ?)', [ID1, ID2, ID2, ID1]);
+      console.log(`Duplicate couples with IDs (${ID1}, ${ID2}) and (${ID2}, ${ID1}) deleted`);
+    } else {
+      console.log('No duplicate couples found to delete');
+    }
+  } catch (error) {
+    console.error('Error deleting duplicate couple: ', error);
+  }
+}
+
 module.exports = {
   createUser,
   getUser,
@@ -74,4 +88,5 @@ module.exports = {
   deleteUser,
   updateCouple,
   createCouple,
+  deleteDuplicateCouple,
 };
