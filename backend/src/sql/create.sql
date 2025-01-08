@@ -4,6 +4,7 @@ CREATE TABLE
     `ID` VARCHAR(36) NOT NULL, -- device ID
     `coupleID` VARCHAR(36) UNIQUE, -- 연인의 device ID
     `name` VARCHAR(20),
+    `playerID`, VARCHAR(50), -- OneSignal Player ID
     PRIMARY KEY (`ID`),
     FOREIGN KEY (`coupleID`) REFERENCES `User` (`ID`) ON DELETE CASCADE
   );

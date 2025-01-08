@@ -37,6 +37,7 @@ settingRouter.delete('/deleteUserData', async (req, res) => {
   const { ID } = req.query;
   try {
       await deleteUser(ID);
+      await deletePartnerUser(ID);
       await deleteCouple(ID);
       await deleteDiary(ID);
       await deleteEmotion(ID);

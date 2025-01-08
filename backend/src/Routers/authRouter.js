@@ -55,7 +55,9 @@ authRouter.get('/getUser', async (req, res) => {
 authRouter.patch('/updatePlayerID', async (req, res) => {
   const { ID, playerID } = req.body;
   try {
+      console.log('ID:', ID);
       await updatePlayerID(ID, playerID);
+      console.log('update Player ID:', playerID);
       res.status(200).json({ message: "Player ID updated" });
   } catch (error) {
       res.status(500).json({ error: "Failed to update player ID" });
@@ -92,7 +94,7 @@ authRouter.delete('/deleteUser', async (req, res) => {
   }
 });
 
-authRouter.patch('/updateCouple', async (req, res) => {
+authRouter.post('/updateCouple', async (req, res) => {
   const { ID, coupleRegisterID } = req.body;
   try {
       const coupleID = await findIDByCoupleRegisterID(coupleRegisterID);
