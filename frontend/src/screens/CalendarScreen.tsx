@@ -15,6 +15,8 @@ import paintingsData from '../../datas/paintings.json';
 import DeviceInfo from "react-native-device-info";
 import axios from 'axios';
 import config from '../config';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 
 const baseUrl = config.backendUrl;
 const imageMapping = {
@@ -62,7 +64,7 @@ const CalendarScreen = ({ navigation }) => {
         const deviceID = await DeviceInfo.getUniqueId(); // 사용자 ID 가져오기
         console.log('Device ID:', deviceID);
         
-        const response = await axios.get(`${baseUrl}/calendar/getEmotionColors`, {
+        const response = await axios.get(`${baseUrl}/calendar/colors`, {
           params: { ID: deviceID },
         });
   
@@ -74,7 +76,7 @@ const CalendarScreen = ({ navigation }) => {
         data.forEach((item) => {
           formattedDates[item.date] = { selected: true, selectedColor: item.color };
         });
-        
+  
         setMarkedDates(formattedDates); // 상태 업데이트
       } catch (error) {
         console.error('Error fetching calendar colors:', error);
@@ -111,8 +113,13 @@ const CalendarScreen = ({ navigation }) => {
       source={require('../assets/img/calendarbackground.png')} // 예술적인 배경 이미지
       style={styles.background}>
       <View style={styles.container}>
-        <Text style={styles.title}>기록실</Text>
-
+      {/* 제목과 돌아가기 버튼이 한 줄로 배치된 헤더 */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-back-outline" size={30} color="#6B4E3D" />
+        </TouchableOpacity>
+        <Text style={styles.title}>내 캘린더</Text>
+      </View>
         <Calendar
           current={new Date().toISOString().split('T')[0]}
           markedDates={markedDates}
@@ -134,12 +141,6 @@ const CalendarScreen = ({ navigation }) => {
           }}
           style={styles.calendar}
         />
-
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>돌아가기</Text>
-        </TouchableOpacity>
 
         <Modal
           visible={modalVisible}
