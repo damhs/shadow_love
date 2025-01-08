@@ -30,16 +30,26 @@ const getArtworks = async (ID) => {
 
 const updateArtworkTitle = async (artworkID, newTitle) => {
   try {
-    await pool.query(
-      "UPDATE Artwork SET title = ? WHERE artworkID = UUID_TO_BIN(?, 1)",
+    console.log('Updating Artwork:', { artworkID, newTitle });
+
+    const [result] = await pool.query(
+      "UPDATE Artwork SET title = ? WHERE BIN_TO_UUID(artworkID) = ?",
       [newTitle, artworkID]
     );
+
+    console.log('Rows affected:', result.affectedRows);
+
+    if (result.affectedRows === 0) {
+      console.warn('No rows were updated. Check if the artworkID exists.');
+      return false;
+    }
+
     return true;
   } catch (error) {
-    console.error("Error updating artwork title: ", error);
+    console.error('Error updating artwork title:', error);
     return false;
   }
-}
+};
 
 module.exports = {
   getCoupleID,

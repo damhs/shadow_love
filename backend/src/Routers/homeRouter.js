@@ -48,7 +48,7 @@ homeRouter.get('/getArtworks', async (req, res) => {
   }
 });
 
-homeRouter.put("/updateArtworkTitle", async (req, res) => {
+homeRouter.patch("/updateArtworkTitle", async (req, res) => {
   const { artworkID, newTitle } = req.body; // artworkID와 새로운 제목을 클라이언트로부터 받음
 
   if (!artworkID || !newTitle) {
@@ -56,6 +56,8 @@ homeRouter.put("/updateArtworkTitle", async (req, res) => {
   }
 
   try {
+    console.log('artworkID:', artworkID);
+    console.log('newTitle:', newTitle);
     // DB 업데이트 서비스 호출
     const result = await updateArtworkTitle(artworkID, newTitle);
 
