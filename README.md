@@ -1,68 +1,34 @@
-## **🗓️ 개발 기간**
+
+
+## 🗓️ 개발 기간
 
 - 2024.01.02 ~ 2025.01.08
 
----
 
-## **👥 Team Members (팀원 및 팀 소개)**
+## 👥 Team Members (팀원 및 팀 소개)
 
-👩🏻‍💻 이한샘
+|                                                      👩🏻‍💻 이한샘                                                       |                                                      🥔 박재현                                                       |
+| :------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------: |
+| <img src="https://github.com/user-attachments/assets/bb17ef51-ebab-4d13-ad63-1e4bd8fd25ad" alt="이한샘" width="150"> | <img src="https://github.com/user-attachments/assets/28d38bdd-f4a7-4c7c-8e24-e663344f3031" alt="박재현" width="150"> |
+|                                                   기획 / 백엔드 개발자                                                   |                                                 기획 / 프론트엔드 개발자                                                 |
+|                                                     KAIST AE/CS                                                      |                                                    DGIST CS/EE                                                    |
+|                                                ihansaem1@kaist.ac.kr                                                 |                                                 monkey1soong@dgist.ac.kr                                                 |
+|                                          [GitHub](https://github.com/damhs)                                          |                                       [GitHub](https://github.com/monkey1soong)                                       |
 
----
+## 💻 개발환경 및 기술스택
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f6cb388f-3934-47d6-9928-26d2e10eb0fc/26a60c44-8cb8-40dd-bfe4-75d69815e330/image.png)
-
-기획 / 백엔드 개발자
-
-KAIST AE/CS
-
-[ihansaem1@kaist.ac.kr](mailto:ihansaem1@kaist.ac.kr)
-
-https://github.com/damhs
-
-**🥔 박재현**
-
----
-
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f6cb388f-3934-47d6-9928-26d2e10eb0fc/e8fd8107-df88-4d38-a4b7-4c340af11439/8494fa50-49e3-4f88-b1e1-6e24e37fa851.png)
-
-기획 / 프론트엔드 개발자
-
-DGIST CS/EE
-
-[monkey1soong@dgist.ac.kr](mailto:monkey1soong@dgist.ac.kr)
-
-https://github.com/monkey1soong
-
----
-
-## **💻 개발환경 및 기술스택**
-
-- 프론트엔드 : **React-native**
-- 백엔드 : **Node.js**
-- DB : **MySQL**
-- IDE : **VSCode**
-- 디자인 : **Figma**
-- 협업 : **Github**
+- 프론트엔드 : **React-native**
+- 백엔드 : **Node.js**
+- IDE : **VSCode**
+- 디자인 : **Figma**
+- 협업 : **Github**
 - API : **openAI, OneSignal**
 
 ---
 
-# 📱 어플 간단 소개
-
-여러분은 오늘 하루를 어떤 감정으로 기억하시나요? 혹은 사랑하는 사람과의 하루를 하나의 예술 작품으로 남길 수 있다면 어떨까요? <**Togathery>**는 이런 질문에서 시작되었습니다.
-
-- 사용자는 하루를 돌아보는 질문에 답변을 작성하고, AI가 이를 바탕으로 감정을 분석합니다.
-- 감정은 색으로 변환되고, 두 사람의 감정이 섞여 하나의 그림으로 완성됩니다.
-- 매일 새로운 그림이 쌓이며, 여러분의 사랑 이야기가 고유의 예술 작품으로 기록됩니다.
-
 # **💡 주요 기능**
 
 ## 1. 연인 매칭
-
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f6cb388f-3934-47d6-9928-26d2e10eb0fc/fac9ad5d-2eb2-4e7b-8ce8-69dd383b2989/image.png)
-
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/f6cb388f-3934-47d6-9928-26d2e10eb0fc/72b69f6c-48a6-4a32-9606-4ed1ac0f5723/image.png)
 
 연인과의 여정이 시작되는 입구입니다.
 
