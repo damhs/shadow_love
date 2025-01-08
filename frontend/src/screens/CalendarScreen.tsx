@@ -16,6 +16,7 @@ import DeviceInfo from "react-native-device-info";
 import axios from 'axios';
 import config from '../config';
 import Icon from 'react-native-vector-icons/Ionicons'; // Ionicons 사용
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 const baseUrl = config.backendUrl;
@@ -44,6 +45,23 @@ LocaleConfig.locales['ko'] = {
   today: '오늘',
 };
 LocaleConfig.defaultLocale = 'ko';
+
+const renderCustomHeader = (date) => {
+  const year = date.getFullYear();
+  const month = LocaleConfig.locales['ko'].monthNames[date.getMonth()];
+  return (
+    <View style={styles.headerContainer}>
+      <TouchableOpacity onPress={() => { /* 이전 달 이동 */ }}>
+        <Icon name="chevron-back-outline" size={25} color="#FFFFFF" />
+      </TouchableOpacity>
+      <Text style={styles.headerText}>{`${year}년 ${month}`}</Text>
+      <TouchableOpacity onPress={() => { /* 다음 달 이동 */ }}>
+        <Icon name="chevron-forward-outline" size={25} color="#FFFFFF" />
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 
 const CalendarScreen = ({ navigation }) => {
   const [markedDates, setMarkedDates] = useState({});
@@ -110,68 +128,42 @@ const CalendarScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../assets/img/calendarbackground.png')} // 예술적인 배경 이미지
-      style={styles.background}>
-      <View>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}>
-        <Icon name="arrow-back-outline" size={30} color="#333" />
-      </TouchableOpacity>
-        <Text style={styles.title}>기록실</Text>
+      source={require('../assets/img/calendar_background.webp')} // 배경 이미지 경로
+      style={styles.background}
+    >
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}>
+          <Icon name="arrow-back-outline" size={30} color="#333" />
+        </TouchableOpacity>
 
+        {/* 액자 이미지 */}
+        <Image
+          source={require('../assets/img/frame.png')} // 액자 이미지 경로
+          style={styles.frame}
+        />
+
+        {/* 제목 */}
+        <Text style={styles.title}>제목</Text>
+
+        {/* 캘린더 */}
         <Calendar
           current={new Date().toISOString().split('T')[0]}
           markedDates={markedDates}
-          markingType="custom"
-          onDayPress={handleDayPress}
-          renderHeader={(date) => renderCustomHeader(new Date(date))}
           theme={{
-            calendarBackground: 'rgba(255, 255, 255, 0.9)',
-            textDayFontSize: 16,
-            textMonthFontSize: 24,
-            textDayHeaderFontSize: 14,
-            todayTextColor: '#FF8C42',
-            arrowColor: '#A78B71', // 부드러운 골드 톤
-            monthTextColor: '#6B4E3D', // 따뜻한 브라운 톤
-            textDayStyle: {
-              lineHeight: 20,
-              textAlign: 'center',
-            },
+            backgroundColor: '#000',
+            calendarBackground: '#FFF',
+            textSectionTitleColor: '#000',
+            todayTextColor: '#FF3B30',
+            dayTextColor: '#333',
+            arrowColor: '#FF9500',
+            selectedDayBackgroundColor: '#FF3B30',
+            selectedDayTextColor: '#FFF',
           }}
           style={styles.calendar}
         />
-
-        <Modal
-          visible={modalVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              {selectedPainting && (
-                <>
-                  <Image
-                    source={imageMapping[selectedPainting.image]}
-                    style={styles.paintingImage}
-                  />
-                  <Text style={styles.modalTitle}>
-                    {selectedPainting.title}
-                  </Text>
-                  <Text style={styles.modalDate}>
-                    {selectedPainting.date}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}>
-                    <Text style={styles.closeButtonText}>닫기</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
-          </View>
-        </Modal>
-      </View>
+      </ScrollView>
     </ImageBackground>
   );
 };
@@ -183,86 +175,34 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
-  },
-  header: {
-    flexDirection: 'row', // 가로 방향으로 배치
-    alignItems: 'center',
-    marginTop: height * 0.07, // 상단 여백 조정
-    marginBottom: 10,
+    justifyContent: 'center', // 세로 방향으로 중앙 정렬
+    alignItems: 'center', // 가로 방향으로 중앙 정렬
   },
   backButton: {
     position: 'absolute', // 버튼을 독립적으로 배치
-    top: 40, // 화면 상단에서 약간 아래로
-    left: width*0.1, // 화면 왼쪽에서 약간 안쪽으로
+    top: 30, // 화면 상단에서 약간 아래로
+    left: width*0.03, // 화면 왼쪽에서 약간 안쪽으로
     zIndex: 10, // 캘린더 위에 표시되도록 설정
   },
-  backButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+  frame: {
+    width: width * 0.8, // 화면 너비의 80%
+    height: height * 0.4, // 화면 높이의 40%
+    resizeMode: 'contain', // 이미지 비율 유지
+    marginBottom: 20, // 캘린더와 간격 조정
   },
   title: {
-    marginTop: 40,
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#6B4E3D',
-    textAlign: 'center',
-    fontFamily: 'serif',
-  },
-  headerContainer: {
-    alignItems: 'center',
-    padding: 10,
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#6B4E3D',
+    fontSize: 24, // 텍스트 크기
+    fontWeight: 'bold', // 텍스트 두께
+    color: '#333', // 텍스트 색상
+    marginBottom: 20, // 캘린더와의 간격
+    textAlign: 'center', // 텍스트 중앙 정렬
   },
   calendar: {
-    borderRadius: 15,
-    elevation: 5,
+    width: width * 0.9, // 캘린더 너비
+    borderRadius: 10, // 모서리 둥글게
+    elevation: 5, // 그림자 효과 (Android)
     paddingVertical: 10,
-    marginTop: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 15,
-    alignItems: 'center',
-    width: '85%',
-  },
-  paintingImage: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'contain',
-    marginBottom: 15,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#6B4E3D',
-    marginBottom: 10,
-  },
-  modalDate: {
-    fontSize: 16,
-    color: '#5A5A5A',
-    marginBottom: 20,
-  },
-  closeButton: {
-    backgroundColor: '#6B4E3D',
-    padding: 10,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: 'white',
-    fontSize: 16,
+    backgroundColor: '#FFF', // 캘린더 배경색
   },
 });
 
