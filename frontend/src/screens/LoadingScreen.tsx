@@ -14,7 +14,7 @@ const LoadingScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Video
-        source={require('../assets/video/loading.mp4')} // 로컬 영상 파일 경로
+        source={require('../assets/videos/Loading_D2.mov')} // 로컬 영상 파일 경로
         style={styles.video}
         resizeMode="cover" // 영상 크기 조정
         repeat={true} // 반복 재생

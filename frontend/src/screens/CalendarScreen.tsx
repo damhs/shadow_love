@@ -15,6 +15,8 @@ import paintingsData from '../../datas/paintings.json';
 import DeviceInfo from "react-native-device-info";
 import axios from 'axios';
 import config from '../config';
+import Icon from 'react-native-vector-icons/Ionicons'; // Ionicons 사용
+
 
 const baseUrl = config.backendUrl;
 const imageMapping = {
@@ -110,7 +112,12 @@ const CalendarScreen = ({ navigation }) => {
     <ImageBackground
       source={require('../assets/img/calendarbackground.png')} // 예술적인 배경 이미지
       style={styles.background}>
-      <View style={styles.container}>
+      <View>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}>
+        <Icon name="arrow-back-outline" size={30} color="#333" />
+      </TouchableOpacity>
         <Text style={styles.title}>기록실</Text>
 
         <Calendar
@@ -134,12 +141,6 @@ const CalendarScreen = ({ navigation }) => {
           }}
           style={styles.calendar}
         />
-
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>돌아가기</Text>
-        </TouchableOpacity>
 
         <Modal
           visible={modalVisible}
@@ -184,14 +185,30 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  header: {
+    flexDirection: 'row', // 가로 방향으로 배치
+    alignItems: 'center',
+    marginTop: height * 0.07, // 상단 여백 조정
+    marginBottom: 10,
+  },
+  backButton: {
+    position: 'absolute', // 버튼을 독립적으로 배치
+    top: 40, // 화면 상단에서 약간 아래로
+    left: width*0.1, // 화면 왼쪽에서 약간 안쪽으로
+    zIndex: 10, // 캘린더 위에 표시되도록 설정
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   title: {
+    marginTop: 40,
     fontSize: 26,
     fontWeight: 'bold',
     color: '#6B4E3D',
     textAlign: 'center',
-    marginBottom: 20,
     fontFamily: 'serif',
-    marginTop: height * 0.15,
   },
   headerContainer: {
     alignItems: 'center',
@@ -206,17 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     elevation: 5,
     paddingVertical: 10,
-  },
-  backButton: {
     marginTop: 20,
-    alignSelf: 'center',
-    backgroundColor: '#6B4E3D',
-    padding: 10,
-    borderRadius: 5,
-  },
-  backButtonText: {
-    color: 'white',
-    fontSize: 16,
   },
   modalContainer: {
     flex: 1,
