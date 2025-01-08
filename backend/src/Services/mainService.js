@@ -150,6 +150,24 @@ const createArtwork = async (ID1, ID2, emotionID1, emotionID2, artworkPath) => {
   }
 }
 
+const getPartnerPlayerID = async (ID) => {
+  try {
+    const [coupleID] = await pool.query(
+      "SELECT coupleID AS coupleID FROM User WHERE ID = ?",
+      [ID]
+    );
+    console.log('partnerID:', coupleID);
+    const [playerID] = await pool.query(
+      "SELECT playerID FROM User WHERE ID = ?",
+      [coupleID[0].coupleID]
+    );
+    console.log('playerID:', playerID);
+    return playerID;
+  } catch (error) {
+    console.error("Error getting partner playerID: ", error);
+  }
+}
+
 module.exports = {
   createQuestion,
   getQuestion,
@@ -160,4 +178,5 @@ module.exports = {
   getEmotion,
   getColor,
   createArtwork,
+  getPartnerPlayerID,
 };

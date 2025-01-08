@@ -16,11 +16,14 @@ const {
   getEmotion,
   getColor,
   createArtwork,
+  getPartnerPlayerID,
 } = require("../Services/mainService.js");
 
 dotenv.config();
 
 const openai = new Openai.OpenAI({ apikey: process.env.OPENAI_API_KEY });
+const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
+const REST_API_KEY = process.env.REST_API_KEY;
 
 const mainRouter = express.Router();
 
@@ -323,5 +326,46 @@ mainRouter.put("/updateArtworkTitle", async (req, res) => {
   }
 });
 
+const sendPushNotification = async (playerID, title, body) => {
+  const payload = {
+    app_id: ONESIGNAL_APP_ID,
+    include_aliases: { "onesignal_id": [playerID] },
+    target_channel: "push",
+    headings: { en: title },
+    contents: { en: body },
+  };
+
+  try {
+    await axios.post('https://api.onesignal.com/notifications?c=push', payload, {
+      headers: {
+        accept: 'application/json',
+        Authorization: `Key ${REST_API_KEY}`,
+        'content-type': 'application/json',
+      },
+    });
+    console.log('Notification sent successfully');
+  } catch (error) {
+    console.error('Error sending notification:', error.response.data);
+  }
+};
+
+mainRouter.post("/sendPushNotification", async (req, res) => {
+  const { ID } = req.body;
+  const playerID = await getPartnerPlayerID(ID);
+  console.log('playerID:', playerID);
+  const title = '상대방이 하루를 작성했어요!';
+  const body = '지금 확인해보세요!';
+
+  if (!playerID) {
+    return res.status(400).json({ error: "playerID are required." });
+  }
+
+  try {
+    await sendPushNotification(playerID[0].playerID, title, body);
+    res.status(200).json({ message: "Push notification sent successfully." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to send push notification." });
+  }
+});
 
 module.exports = mainRouter;

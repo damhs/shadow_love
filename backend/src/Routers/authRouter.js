@@ -4,6 +4,7 @@ const {
     createUser,
     getUser,
     getAllUserID,
+    updatePlayerID,
     getCouple,
     deleteUser,
     updateCouple,
@@ -48,6 +49,16 @@ authRouter.get('/getUser', async (req, res) => {
       res.status(200).json(user);
   } catch (error) {
       res.status(500).json({ error: "Failed to get user" });
+  }
+});
+
+authRouter.patch('/updatePlayerID', async (req, res) => {
+  const { ID, playerID } = req.body;
+  try {
+      await updatePlayerID(ID, playerID);
+      res.status(200).json({ message: "Player ID updated" });
+  } catch (error) {
+      res.status(500).json({ error: "Failed to update player ID" });
   }
 });
 

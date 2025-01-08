@@ -20,6 +20,16 @@ const getUser = async(ID) => {
   }
 }
 
+const updatePlayerID = async(ID, playerID) => {
+  try {
+    await pool.query('UPDATE User SET playerID = ? WHERE ID = ?', [playerID, ID]);
+    console.log('updatePlayerID: ', playerID);
+    return playerID;
+  } catch (error) {
+    console.error('Error updating playerID: ', error);
+  }
+}
+
 const getAllUserID = async() => {
   try {
     const [ID] = await pool.query('SELECT ID FROM User');
@@ -84,6 +94,7 @@ module.exports = {
   createUser,
   getUser,
   getAllUserID,
+  updatePlayerID,
   getCouple,
   deleteUser,
   updateCouple,
