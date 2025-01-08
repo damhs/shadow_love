@@ -130,14 +130,7 @@ const HomeScreen = ({navigation}) => {
           />
         ) : artworks.length === 0 ? ( // artworks가 비어 있을 때 처리
           <View style={baseStyles.imageContainer}>
-            {/* 말풍선 추가 */}
-            <ImageBackground
-              source={require('../assets/img/speechBubble4.png')} // 말풍선 이미지
-              style={[baseStyles.speechBubble, {marginTop: 100}]}
-              resizeMode="Stretch"
-            >
-              <Text style={baseStyles.speechText}>당신의 오늘을 알려주세요!</Text>
-            </ImageBackground>
+            <Text style={baseStyles.title}>오늘을 기록해 보세요.</Text>
           </View>
         ) : (
           <View style={baseStyles.imageContainer}>
@@ -221,26 +214,10 @@ const baseStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  speechBubble: {
-    width: 300, // 말풍선의 너비
-    height: 200, // 말풍선의 높이
-    position: 'absolute', // 다른 요소와 독립적으로 배치
-    bottom: height * 0.05, // 화면 아래쪽에서 약간 위
-    left: width * 0.05, // 왼쪽 여백
-    justifyContent: 'center', // 텍스트 세로 정렬
-    alignItems: 'center', // 텍스트 가로 정렬
-    backgroundColor: 'transparent', // 배경색 제거
-  },
-  speechText: {
-    fontSize: 14, // 텍스트 크기
-    color: '#333', // 텍스트 색상
-    fontWeight: 'bold',
-    textAlign: 'center', // 텍스트 가운데 정렬
-    marginHorizontal: 10, // 텍스트 여백
-  },
   imageContainer: {
-    flex: 0.9, // 컨테이너 크기 최소화
-    backgroundColor: 'transparent', // 흰 배경 제거
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
     width: width * 0.5,
