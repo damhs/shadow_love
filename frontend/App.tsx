@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { ActivityIndicator, View } from 'react-native';
-import { BackgroundProvider } from './src/screens/BackgroundContext'; // BackgroundProvider 가져오기
+import React, {useEffect, useState, useRef} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {ActivityIndicator, View} from 'react-native';
+import {BackgroundProvider} from './src/screens/BackgroundContext'; // BackgroundProvider 가져오기
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
+import {LogLevel, OneSignal} from 'react-native-onesignal';
 import config from './src/config';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -19,12 +20,45 @@ import SetPasswordScreen from './src/screens/SetPasswordScreen';
 const Stack = createStackNavigator();
 const baseUrl = config.backendUrl;
 
-
 const App = () => {
   const [initialRoute, setInitialRoute] = useState(null);
-  const [password, setPassword] = useState("0000");
+  const [password, setPassword] = useState('0000');
+  const navigationRef = useRef(null);
 
   useEffect(() => {
+    const setOneSignal = async () => {
+      console.log('Setting up OneSignal...');
+      // OneSignal 초기화
+      OneSignal.initialize(config.oneSignalAppId);
+      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+      console.log('OneSignal initialized.');
+
+      // 알림 권한 요청
+      OneSignal.Notifications.requestPermission(true);
+      console.log('Notification permission requested.');
+
+      // 알림 수신 시 처리
+      OneSignal.Notifications.addEventListener('click', notification => {
+        console.log('Notification opened:', notification);
+
+        // 알림 클릭 시 홈으로
+        if (navigationRef.current) {
+          navigationRef.current.navigate('Home');
+        }
+      });
+
+      const playerID = await OneSignal.User.getOnesignalId();
+      console.log('Player ID:', playerID);
+
+      const deviceID = await DeviceInfo.getUniqueId();
+
+      // MySQL로 Player ID 업데이트
+      axios.patch(`${baseUrl}/auth/updatePlayerID`, {
+        ID: deviceID, // 사용자 ID
+        playerID: playerID,
+      });
+      console.log('Player ID updated.');
+    };
     const checkDeviceRegistration = async () => {
       try {
         const deviceID = await DeviceInfo.getUniqueId();
@@ -32,42 +66,40 @@ const App = () => {
 
         // 병렬 요청으로 데이터 가져오기
         const [userResponse, coupleResponse] = await Promise.all([
-          axios.get(`${baseUrl}/auth/getUser`, { params: { ID: deviceID } }),
-          axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } }),
+          axios.get(`${baseUrl}/auth/getUser`, {params: {ID: deviceID}}),
+          axios.get(`${baseUrl}/auth/getCouple`, {params: {ID: deviceID}}),
         ]);
 
         console.log('userResponse:', userResponse.data);
         // console.log('coupleResponse:', coupleResponse.data);
 
         if (userResponse.data.length === 0) {
-          await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
+          await axios.post(`${baseUrl}/auth/createUser`, {ID: deviceID});
         }
 
         // 데이터 확인 후 초기 라우트 설정
-        if (coupleResponse.data.length === 0 || coupleResponse.data[0].coupleID === null) {
-          setInitialRoute('Home');
+        if (
+          coupleResponse.data.length === 0 ||
+          coupleResponse.data[0].coupleID === null
+        ) {
+          setInitialRoute('Register');
         } else {
-          if (password == "") {
-            setInitialRoute('Home');
-          }
-          else {
-            setInitialRoute('Home');
-          }
+          setInitialRoute('Home');
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
         // 에러 발생 시 기본 라우트를 Home으로 설정
-        setInitialRoute('Home');
+        setInitialRoute('Register');
       }
     };
-
+    setOneSignal();
     checkDeviceRegistration();
   }, []);
 
   if (initialRoute === null) {
     // 로딩 화면
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
@@ -75,9 +107,10 @@ const App = () => {
 
   return (
     <BackgroundProvider>
-      {/* BackgroundProvider로 감싸기 */}
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
+      <NavigationContainer ref={navigationRef}>
+        <Stack.Navigator
+          initialRouteName={initialRoute}
+          screenOptions={{headerShown: false}}>
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Calendar" component={CalendarScreen} />
           <Stack.Screen name="Diary" component={DiaryScreen} />
@@ -85,8 +118,16 @@ const App = () => {
           <Stack.Screen name="Setting" component={SettingsScreen} />
           <Stack.Screen name="Explore" component={ExploreScreen} />
           <Stack.Screen name="Transition" component={RegisterToHomeScreen} />
-          <Stack.Screen name="Lock" component={LockScreen} />
-          <Stack.Screen name="Password" component={SetPasswordScreen} />
+          <Stack.Screen
+            name="Lock"
+            component={LockScreen}
+            initialParams={{savedPassword: password}}
+          />
+          <Stack.Screen
+            name="Password"
+            component={SetPasswordScreen}
+            initialParams={{savedPassword: password}}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </BackgroundProvider>

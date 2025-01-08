@@ -28,7 +28,7 @@ const DiaryScreen = ({navigation}) => {
         axios.get(`${baseUrl}/main/getRandomQuestion`),
         axios.get(`${baseUrl}/main/getRandomQuestion`),
       ]);
-      
+
       const questionIDs = questions.map(res => res.data.questionID);
       console.log('questionIDs:', questionIDs);
       setSelectedQuestionIDs(questionIDs);
@@ -55,26 +55,20 @@ const DiaryScreen = ({navigation}) => {
     try {
       const deviceID = await DeviceInfo.getUniqueId();
       console.log('DeviceID:', deviceID);
-      const coupleResponse = await axios.get(
-        `${baseUrl}/auth/getCouple`,
-        {
-          params: { ID: deviceID },
-        },
-      );
+      const coupleResponse = await axios.get(`${baseUrl}/auth/getCouple`, {
+        params: {ID: deviceID},
+      });
       console.log('coupleResponse:', coupleResponse.data);
       // Step 1: Save Diary
-      const diaryResponse = await axios.post(
-        `${baseUrl}/main/createDiary`,
-        {
-          ID: deviceID,
-          questionID1: selectedQuestionIDs[0],
-          answerText1: answers[0],
-          questionID2: selectedQuestionIDs[1],
-          answerText2: answers[1],
-          questionID3: selectedQuestionIDs[2],
-          answerText3: answers[2],
-        },
-      );
+      const diaryResponse = await axios.post(`${baseUrl}/main/createDiary`, {
+        ID: deviceID,
+        questionID1: selectedQuestionIDs[0],
+        answerText1: answers[0],
+        questionID2: selectedQuestionIDs[1],
+        answerText2: answers[1],
+        questionID3: selectedQuestionIDs[2],
+        answerText3: answers[2],
+      });
       console.log('diaryResponse:', diaryResponse.data);
 
       // Step 2: Create Emotion
@@ -91,7 +85,7 @@ const DiaryScreen = ({navigation}) => {
       console.log('coupleResponse:', coupleResponse.data);
       const coupleID = coupleResponse.data;
       console.log('coupleID:', coupleID[0].coupleID);
-      
+
       const coupleEmotionResponse = await axios.get(
         `${baseUrl}/main/getEmotion`,
         {
@@ -100,6 +94,11 @@ const DiaryScreen = ({navigation}) => {
       );
 
       console.log('coupleEmotionResponse:', coupleEmotionResponse.data);
+
+      await axios.post(`${baseUrl}/main/sendPushNotification`, {
+        ID: deviceID,
+      });
+      console.log('Push notification sent!');
 
       if (coupleEmotionResponse.data.length === 0) {
         Alert.alert(
@@ -166,15 +165,24 @@ const DiaryScreen = ({navigation}) => {
   return (
     <ImageBackground
       source={require('../assets/img/diary_background_3.png')}
-      style={styles.background}
-    >
+      style={styles.background}>
       {/* 상단에 뒤로가기 아이콘만 추가 */}
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Icon name="arrow-back-outline" size={30} color="#FFF" /> {/* 아이콘만 표시 */}
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}>
+        <Icon name="arrow-back-outline" size={30} color="#FFF" />{' '}
+        {/* 아이콘만 표시 */}
       </TouchableOpacity>
-  
+
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title, styles.customFont, { marginTop: 40 , fontSize: 24, textAlign: 'center', color: '#FFF'}}>Today's Diary Questions</Text>
+        <Text
+          style={
+            (styles.title,
+            styles.customFont,
+            {marginTop: 40, fontSize: 24, textAlign: 'center', color: '#FFF'})
+          }>
+          Today's Diary Questions
+        </Text>
         {selectedQuestionTexts.map((question, index) => (
           <View key={index} style={styles.questionContainer}>
             <Text style={styles.customFont}>
@@ -182,12 +190,13 @@ const DiaryScreen = ({navigation}) => {
             </Text>
             <TextInput
               style={[
-                styles.input, styles.customFont,
-                isComplete && { backgroundColor: '#e9ecef', color: '#6c757d' },
+                styles.input,
+                styles.customFont,
+                isComplete && {backgroundColor: '#e9ecef', color: '#6c757d'},
               ]}
               placeholder="Write your answer here..."
               value={answers[index]}
-              onChangeText={(text) => handleAnswerChange(index, text)}
+              onChangeText={text => handleAnswerChange(index, text)}
               multiline={true}
               maxLength={200}
               editable={!isComplete}
@@ -195,13 +204,12 @@ const DiaryScreen = ({navigation}) => {
             <Text style={styles.charCount}>{answers[index].length}/200</Text>
           </View>
         ))}
-  
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.completeButton}
             onPress={handleComplete}
-            disabled={isComplete}
-          >
+            disabled={isComplete}>
             <Text style={styles.buttonText}>
               {isComplete ? 'Completed' : 'Complete'}
             </Text>
@@ -210,7 +218,6 @@ const DiaryScreen = ({navigation}) => {
       </ScrollView>
     </ImageBackground>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -235,16 +242,16 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     color: '#FFF',
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 2 },
+    textShadowOffset: {width: 0, height: 2},
     textShadowRadius: 4,
-  },  
+  },
   questionContainer: {
     marginTop: 20,
     padding: 15,
     backgroundColor: '#F9F9F9', // 연한 배경
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
@@ -266,12 +273,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDDDDD',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
     placeholderTextColor: '#AAAAAA', // 플레이스홀더 색상
-  },  
+  },
   charCount: {
     textAlign: 'right',
     color: '#888',
@@ -280,7 +287,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 20,
     alignItems: 'flex-end',
-    
   },
   completeButton: {
     backgroundColor: 'rgb(69, 223, 82)',
@@ -288,7 +294,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 10, // 둥근 모서리
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
@@ -297,12 +303,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
-  },  
+  },
   customFont: {
     fontSize: 20,
     fontFamily: 'Nanum GaRamYeonGgoc',
   },
 });
-
 
 export default DiaryScreen;
