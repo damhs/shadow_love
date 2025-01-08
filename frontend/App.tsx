@@ -26,57 +26,36 @@ const App = () => {
   const navigationRef = useRef(null);
 
   useEffect(() => {
-    const setOneSignal = async () => {
-      console.log('Setting up OneSignal...');
-      // OneSignal 초기화
-      OneSignal.initialize(config.oneSignalAppId);
-      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
-      console.log('OneSignal initialized.');
-
-      // 알림 권한 요청
-      OneSignal.Notifications.requestPermission(true);
-      console.log('Notification permission requested.');
-
-      // 알림 수신 시 처리
-      OneSignal.Notifications.addEventListener('click', notification => {
-        console.log('Notification opened:', notification);
-
-        // 알림 클릭 시 홈으로
-        if (navigationRef.current) {
-          navigationRef.current.navigate('Home');
-        }
-      });
-
-      const playerID = await OneSignal.User.getOnesignalId();
-      console.log('Player ID:', playerID);
-
-      const deviceID = await DeviceInfo.getUniqueId();
-
-      // MySQL로 Player ID 업데이트
-      axios.patch(`${baseUrl}/auth/updatePlayerID`, {
-        ID: deviceID, // 사용자 ID
-        playerID: playerID,
-      });
-      console.log('Player ID updated.');
+    const initializeApp = async () => {
+      try {
+        // 1. 유저 등록 확인 및 초기화
+        await checkDeviceRegistration();
+  
+        // 2. OneSignal 설정
+        await setOneSignal();
+      } catch (error) {
+        console.error('Error initializing app:', error);
+      }
     };
+  
     const checkDeviceRegistration = async () => {
       try {
         const deviceID = await DeviceInfo.getUniqueId();
         console.log(deviceID);
-
+  
         // 병렬 요청으로 데이터 가져오기
         const [userResponse, coupleResponse] = await Promise.all([
-          axios.get(`${baseUrl}/auth/getUser`, {params: {ID: deviceID}}),
-          axios.get(`${baseUrl}/auth/getCouple`, {params: {ID: deviceID}}),
+          axios.get(`${baseUrl}/auth/getUser`, { params: { ID: deviceID } }),
+          axios.get(`${baseUrl}/auth/getCouple`, { params: { ID: deviceID } }),
         ]);
-
+  
         console.log('userResponse:', userResponse.data);
         // console.log('coupleResponse:', coupleResponse.data);
-
+  
         if (userResponse.data.length === 0) {
-          await axios.post(`${baseUrl}/auth/createUser`, {ID: deviceID});
+          await axios.post(`${baseUrl}/auth/createUser`, { ID: deviceID });
         }
-
+  
         // 데이터 확인 후 초기 라우트 설정
         if (
           coupleResponse.data.length === 0 ||
@@ -88,12 +67,54 @@ const App = () => {
         }
       } catch (error) {
         console.error('Error fetching device registration:', error);
-        // 에러 발생 시 기본 라우트를 Home으로 설정
+        // 에러 발생 시 기본 라우트를 Register으로 설정
         setInitialRoute('Register');
       }
     };
-    setOneSignal();
-    checkDeviceRegistration();
+  
+    const setOneSignal = async () => {
+      try {
+        console.log('Setting up OneSignal...');
+        // OneSignal 초기화
+        OneSignal.initialize(config.oneSignalAppId);
+        OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+        console.log('OneSignal initialized.');
+  
+        // 알림 권한 요청
+        OneSignal.Notifications.requestPermission(true);
+        console.log('Notification permission requested.');
+  
+        // 알림 수신 시 처리
+        OneSignal.Notifications.addEventListener('click', notification => {
+          console.log('Notification opened:', notification);
+  
+          // 알림 클릭 시 홈으로
+          if (navigationRef.current) {
+            navigationRef.current.navigate('Home');
+          }
+        });
+  
+        const playerID = await OneSignal.User.getOnesignalId();
+        console.log('Player ID:', playerID);
+  
+        const deviceID = await DeviceInfo.getUniqueId();
+  
+        // MySQL로 Player ID 업데이트
+        await axios
+          .patch(`${baseUrl}/auth/updatePlayerID`, { ID: deviceID, playerID })
+          .then(response => {
+            console.log('Axios Response:', response.data);
+          })
+          .catch(error => {
+            console.error('Axios Error:', error.response?.data || error.message);
+          });
+        console.log('Player ID updated.');
+      } catch (error) {
+        console.error('Error setting up OneSignal:', error);
+      }
+    };
+  
+    initializeApp();
   }, []);
 
   if (initialRoute === null) {

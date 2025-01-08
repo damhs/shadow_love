@@ -44,7 +44,7 @@ const RegisterAsCoupleScreen = ({ navigation }) => {
 
       console.log(partnerCode);
 
-      const coupleID = await axios.patch(`${baseUrl}/auth/updateCouple`, { ID: deviceID, coupleRegisterID: partnerCode });
+      const coupleID = await axios.post(`${baseUrl}/auth/updateCouple`, { ID: deviceID, coupleRegisterID: partnerCode });
 
       console.log(coupleID);
 
@@ -67,7 +67,7 @@ const RegisterAsCoupleScreen = ({ navigation }) => {
       style={styles.background}
     >
       <View style={styles.container}>
-        <Text style={styles.appTitle}>Couple Connect</Text>
+        <Text style={styles.appTitle}>Togathery</Text>
 
         <View style={styles.leftDoor}>
           <Text style={styles.label}>Your Code</Text>

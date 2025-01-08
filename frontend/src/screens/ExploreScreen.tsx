@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,17 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
 import config from '../config';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 
 const baseUrl = config.backendUrl;
 
 const ExploreScreen = () => {
+  const navigation = useNavigation();
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,22 +32,22 @@ const ExploreScreen = () => {
     }
   };
 
-  const fetchTodayArtworks = async (coupleIDs) => {
+  const fetchTodayArtworks = async coupleIDs => {
     try {
       const results = await Promise.all(
-        coupleIDs.map((coupleID) =>
+        coupleIDs.map(coupleID =>
           axios
             .get(`${baseUrl}/gallery/getTodayArtworks`, {
-              params: { coupleID },
+              params: {coupleID},
             })
-            .catch((error) => {
+            .catch(error => {
               console.error(`Error for coupleID ${coupleID}:`, error);
               return null;
-            })
-        )
+            }),
+        ),
       );
       // Filter null results and extract data
-      return results.filter((res) => res !== null).map((res) => res.data);
+      return results.filter(res => res !== null).map(res => res.data);
     } catch (error) {
       console.error('Error fetching artworks:', error);
       return [];
@@ -54,7 +58,7 @@ const ExploreScreen = () => {
     const loadData = async () => {
       try {
         const coupleIDsResponse = await fetchCoupleIDs();
-        const coupleIDs = coupleIDsResponse.map((couple) => couple.coupleID);
+        const coupleIDs = coupleIDsResponse.map(couple => couple.coupleID);
         const todayArtworks = await fetchTodayArtworks(coupleIDs);
 
         // Flatten nested arrays if necessary
@@ -70,24 +74,26 @@ const ExploreScreen = () => {
     loadData();
   }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mutual Art Galleries</Text>
+      {/* 상단 헤더 */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}>
+          <Icon name="arrow-back-outline" size={30} color="#333" />{' '}
+          {/* 올바른 아이콘 렌더링 */}
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Mutual Art Galleries</Text>
+      </View>
       <FlatList
         data={artworks}
         keyExtractor={(item, index) => item.coupleID || index.toString()}
-        renderItem={({ item }) => (
+        renderItem={({item}) => (
           <View style={styles.artworkContainer}>
             <Image
-              source={{ uri: item.artwork || 'https://via.placeholder.com/150' }}
+              source={{uri: item.artwork || 'https://via.placeholder.com/150'}}
               style={styles.artworkImage}
             />
             <Text style={styles.artworkTitle}>{item.title || 'Untitled'}</Text>
@@ -116,11 +122,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: '#FFF',
+  },
+  backButton: {
+    marginRight: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 16,
+    flex: 1, // 제목 중앙 정렬
+    color: '#333',
   },
   row: {
     justifyContent: 'space-between',
