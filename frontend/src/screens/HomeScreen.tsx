@@ -129,8 +129,11 @@ const HomeScreen = ({navigation}) => {
             style={baseStyles.loader}
           />
         ) : artworks.length === 0 ? ( // artworks가 비어 있을 때 처리
-          <View style={baseStyles.imageContainer}>
-            <Text style={baseStyles.title}>오늘을 기록해 보세요.</Text>
+          <View style={baseStyles.speechBubble}>
+            <Image
+              source={require('../assets/img/speechBubble.png')}
+              style={baseStyles.image}
+            />
           </View>
         ) : (
           <View style={baseStyles.imageContainer}>
@@ -255,6 +258,14 @@ const baseStyles = StyleSheet.create({
   },
   arrowButton: {
     padding: width * 0.03,
+  },
+  speechBubble: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: -height * 0.05, // 작은 디바이스 조정
+    left: width * 0.2,
   },
   floatingButton: {
     width: width * 0.15,

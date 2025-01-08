@@ -85,7 +85,7 @@ const ExploreScreen = () => {
           <Icon name="arrow-back-outline" size={30} color="#333" />{' '}
           {/* 올바른 아이콘 렌더링 */}
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mutual Art Galleries</Text>
+        <Text style={styles.headerTitle}>Other Twogatheries</Text>
       </View>
       <FlatList
         data={artworks}
