@@ -1,11 +1,13 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import {ActivityIndicator, View} from 'react-native';
+import {ActivityIndicator, View, StyleSheet} from 'react-native';
 import {BackgroundProvider} from './src/screens/BackgroundContext'; // BackgroundProvider 가져오기
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
 import {LogLevel, OneSignal} from 'react-native-onesignal';
+import SplashScreen from 'react-native-splash-screen';
+import Video from 'react-native-video';
 import config from './src/config';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -22,17 +24,18 @@ const baseUrl = config.backendUrl;
 
 const App = () => {
   const [initialRoute, setInitialRoute] = useState(null);
+  const [isVideoFinished, setIsVideoFinished] = useState(false);
   const [password, setPassword] = useState('0000');
   const navigationRef = useRef(null);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // 1. 유저 등록 확인 및 초기화
         await checkDeviceRegistration();
   
         // 2. OneSignal 설정
         await setOneSignal();
+        
       } catch (error) {
         console.error('Error initializing app:', error);
       }
@@ -117,6 +120,21 @@ const App = () => {
     initializeApp();
   }, []);
 
+  if (!isVideoFinished) {
+    // 스플래시 동영상 화면
+    return (
+      <View style={styles.container}>
+        <Video
+          source={require('./src/assets/videos/splash.mp4')} // 스플래시 동영상 파일 경로
+          style={styles.video}
+          resizeMode="cover" // 동영상 크기 맞춤
+          onEnd={() => setIsVideoFinished(true)} // 동영상 완료 시 호출
+          repeat={false} // 반복 재생 비활성화
+        />
+      </View>
+    );
+  }
+
   if (initialRoute === null) {
     // 로딩 화면
     return (
@@ -154,5 +172,19 @@ const App = () => {
     </BackgroundProvider>
   );
 };
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+});
 
 export default App;
