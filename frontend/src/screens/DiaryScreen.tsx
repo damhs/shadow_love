@@ -136,7 +136,6 @@ const DiaryScreen = ({navigation}) => {
         'Your diary, emotion, and artwork have been saved!',
       );
       setIsComplete(true);
-      navigation.navigate('Loading');
       navigation.goBack();
 
       // Optionally navigate to a screen to view the artwork

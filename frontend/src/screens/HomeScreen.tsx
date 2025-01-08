@@ -71,9 +71,9 @@ const HomeScreen = ({navigation}) => {
     }
 
     try {
-      await axios.put(`${baseUrl}/home/updateArtworkTitle`, {
+      await axios.patch(`${baseUrl}/home/updateArtworkTitle`, {
         artworkID: currentPainting.artworkID,
-        newTitle,
+        newTitle: newTitle,
       });
 
       // 상태 업데이트
@@ -105,7 +105,7 @@ const HomeScreen = ({navigation}) => {
     const todayDiary = artworks.some(artwork => artwork.date === today);
 
     if (todayDiary) {
-      Alert.alert('Diary 작성 완료', '이미 오늘의 Diary를 작성하셨습니다.', [
+      Alert.alert('하루 작성 완료', '이미 오늘을 작성하셨습니다.', [
         {text: '확인'},
       ]);
     } else {
@@ -163,7 +163,7 @@ const HomeScreen = ({navigation}) => {
               <TouchableOpacity
                 onPress={() => {
                   setIsEditing(true);
-                  setNewTitle(currentPainting?.title || '무제');
+                  setNewTitle(currentPainting?.title);
                 }}>
                 <Text style={baseStyles.title}>
                   {currentPainting?.title || '무제'}
@@ -264,7 +264,7 @@ const baseStyles = StyleSheet.create({
     right: width * 0.05,
   },
   arrowButton: {
-    padding: width * 0.03,
+    padding: -width * 0.1,
   },
   speechBubble: {
     flex: 1,
