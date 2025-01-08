@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   StyleSheet,
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useFocusEffect} from '@react-navigation/native';
 import {useBackground} from './BackgroundContext';
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
@@ -29,29 +30,35 @@ const HomeScreen = ({navigation}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
-  useEffect(() => {
-    const fetchArtworks = async () => {
-      try {
-        const deviceID = await DeviceInfo.getUniqueId();
-        const response = await axios.get(`${baseUrl}/home/getArtworks`, {
-          params: {ID: deviceID},
-        });
-        const artworks = response.data.map(artwork => ({
-          artwork: artwork.artwork,
-          date: artwork.date,
-          title: artwork.title,
-          artworkID: artwork.artworkID, // 추가로 artworkID 포함
-        }));
-        setArtworks(artworks);
-        setLoading(false);
-      } catch (error) {
-        setArtworks([]); // 빈 상태로 처리
-        setLoading(false);
-      }
-    };
-
-    fetchArtworks();
+  const fetchArtworks = useCallback(async () => {
+    try {
+      const deviceID = await DeviceInfo.getUniqueId();
+      const response = await axios.get(`${baseUrl}/home/getArtworks`, {
+        params: {ID: deviceID},
+      });
+      const artworks = response.data.map(artwork => ({
+        artwork: artwork.artwork,
+        date: artwork.date,
+        title: artwork.title,
+        artworkID: artwork.artworkID, // 추가로 artworkID 포함
+      }));
+      setArtworks(artworks);
+      setLoading(false);
+    } catch (error) {
+      setArtworks([]); // 빈 상태로 처리
+      setLoading(false);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchArtworks();
+    }, [fetchArtworks]),
+  );
+
+  useEffect(() => {
+    fetchArtworks();
+  }, [fetchArtworks]);
 
   const handleTitleEdit = async () => {
     const currentPainting = artworks[currentIndex];

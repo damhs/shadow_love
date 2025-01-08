@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
   ImageBackground,
+  ActivityIndicator,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import axios from 'axios';
@@ -21,6 +22,7 @@ const DiaryScreen = ({navigation}) => {
   const [selectedQuestionTexts, setSelectedQuestionTexts] = useState([]);
   const [answers, setAnswers] = useState(['', '', '']);
   const [isComplete, setIsComplete] = useState(false); // Completion status
+  const [isLoading, setIsLoading] = useState(false);
   const fetchRandomQuestions = async () => {
     try {
       const questions = await Promise.all([
@@ -53,6 +55,7 @@ const DiaryScreen = ({navigation}) => {
     }
 
     try {
+      setIsLoading(true);
       const deviceID = await DeviceInfo.getUniqueId();
       console.log('DeviceID:', deviceID);
       const coupleResponse = await axios.get(`${baseUrl}/auth/getCouple`, {
@@ -101,6 +104,7 @@ const DiaryScreen = ({navigation}) => {
       console.log('Push notification sent!');
 
       if (coupleEmotionResponse.data.length === 0) {
+        setIsLoading(false);
         Alert.alert(
           'Waiting for Partner',
           'Your partner has not completed their diary yet. Please wait for them.',
@@ -140,6 +144,8 @@ const DiaryScreen = ({navigation}) => {
     } catch (error) {
       console.error('Error completing diary:', error);
       Alert.alert('Error', 'Failed to complete the diary. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -170,7 +176,7 @@ const DiaryScreen = ({navigation}) => {
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}>
-        <Icon name="arrow-back-outline" size={30} color="#FFF" />{' '}
+        <Icon name="arrow-back-outline" size={30} color="#FFF" />
         {/* 아이콘만 표시 */}
       </TouchableOpacity>
 
@@ -209,12 +215,19 @@ const DiaryScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.completeButton}
             onPress={handleComplete}
-            disabled={isComplete}>
+            disabled={isComplete || isLoading}>
             <Text style={styles.buttonText}>
-              {isComplete ? 'Completed' : 'Complete'}
+              {isLoading ? 'Loading...' : isComplete ? 'Completed' : 'Complete'}
             </Text>
           </TouchableOpacity>
         </View>
+
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#FFFFFF" />
+            <Text style={styles.loadingText}>Creating artwork...</Text>
+          </View>
+        )}
       </ScrollView>
     </ImageBackground>
   );
@@ -307,6 +320,23 @@ const styles = StyleSheet.create({
   customFont: {
     fontSize: 20,
     fontFamily: 'Nanum GaRamYeonGgoc',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 배경
+    zIndex: 10, // 다른 요소 위에 표시
+  },
+  loadingText: {
+    color: '#FFFFFF',
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
